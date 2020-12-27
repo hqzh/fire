@@ -3,5 +3,6 @@ module.exports = {
         externals: {
             'AMap': 'AMap' // 高德地图配置
         }
-    }
+    },
+    outputDir:"docs" //打包后的项目目录名称
 }
