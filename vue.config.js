@@ -5,5 +5,5 @@ module.exports = {
         }
     },
     outputDir:"docs", //打包后的项目目录名称
-    publicPath:"./docs"  // 静态路径
+    publicPath:"/docs"  // 静态路径
 }
