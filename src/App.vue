@@ -97,8 +97,8 @@ export default {
             buildingLayer.setStyle(options); //此配色优先级高于自定义mapStyle
 
             let map = new AMap.Map('root', {
-                // center: [102.698418, 25.042276],
-                  center:[116.472268,39.995693],
+                center: [102.769872,25.04942],
+                //   center:[116.472268,39.995693],
                 resizeEnable: true, //缩放
                 rotateEnable: true, //地图是否可旋转
                 pitchEnable: true, // 倾斜
