@@ -1,6 +1,7 @@
 import Vue from 'vue'
-import { Pagination, Button } from 'ant-design-vue'
+import { Input, Button } from 'ant-design-vue'
 import { LocaleProvider } from 'ant-design-vue'
+
 Vue.component(LocaleProvider.name, LocaleProvider)
-Vue.component(Pagination.name, Pagination)
+Vue.component(Input.Search.name, Input.Search)
 Vue.component(Button.name, Button)
