@@ -93,7 +93,7 @@ export default {
                 resizeEnable: true, //缩放
                 rotateEnable: true, //地图是否可旋转
                 pitchEnable: true, // 倾斜
-                zoom: 17,
+                zoom: 18,
                 // 地图俯仰角度，有效范围 0 度- 83 度
                 pitch: 80,
                 rotation: -15,
