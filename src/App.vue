@@ -18,8 +18,7 @@
 
 <script>
 import AMap from 'AMap';
-const icon = require('@/assets/truck.jpg');
-// const icon = require('@/assets/car.png');
+const icon = require('@/assets/truck.png');
 
 export default {
     data() {
@@ -122,8 +121,115 @@ export default {
             this.map.addControl(new AMap.Scale());
             this.setBuildStyle();
             this.searchAddress();
-            this.setTruck();
+            // this.setTruck();
+
+            // 如果调不好光照的话，后面取消，让建筑模型通红
+            // 设置地图的环境光源(color,intensity)
+            // color用来描述光照的颜色，为一个三个元素的数组，每个元素代表RGB的三个分量，每个分量的取值范围[0,1]；
+            // intensity用来描述光照强度，取值范围[0,1]；
+
+            this.map.AmbientLight = new AMap.Lights.AmbientLight([1, 1, 1], 1);
+            // 设置地图的平行光照(direction,color,intensity)
+            // direction用来描述光的照射方向，为一个三个元素的数组，分别代表方向的xyz分量。direction为相对于地图平面的方向，x 正方向朝东，y 正方向朝南，z 正方向朝下
+            // color用来描述光照的颜色，为一个三个元素的数组，每个元素代表RGB的三个分量，每个分量的取值范围[0,1]；
+            // intensity用来描述光照强度，取值范围[0,1]；
+            // 如下: 描述了一个从正南方斜向下照射的一道平行光
+            // var dir = new M.Lights.DirectionLight([0, -1, 1],[1, 1, 1],0.1)
+            this.map.DirectionLight = new AMap.Lights.DirectionLight(
+                [1, 0, -0.5],
+                [1, 1, 1],
+                1
+            );
         },
+        // setBuildModel() {
+        //     var modelName = 'building';
+        //     var objLoader = new THREE.OBJLoader2();
+        //     var callbackOnLoad = function(event) {
+        //         var object3Dlayer = new AMap.Object3DLayer();
+        //         var meshes = event.detail.loaderRootNode.children;
+        //         for (var i = 0; i < meshes.length; i++) {
+        //             var vecticesF3 = meshes[i].geometry.attributes.position;
+        //             var vecticesNormal3 = meshes[i].geometry.attributes.normal;
+        //             var vecticesUV2 = meshes[i].geometry.attributes.uv;
+
+        //             var vectexCount = vecticesF3.count;
+
+        //             const mesh = new AMap.Object3D.MeshAcceptLights();
+
+        //             var geometry = mesh.geometry;
+
+        //             //底部一圈
+        //             // debugger
+
+        //             var c, opacity;
+
+        //             var material = meshes[i].material[0] || meshes[i].material;
+        //             // debugger
+        //             if (material.map)
+        //                 mesh.textures.push(
+        //                     'https://a.amap.com/jsapi_demos/static/demo-center/model/1519/1519.bmp'
+        //                 );
+
+        //             c = material.color;
+        //             opacity = material.opacity;
+
+        //             // debugger
+        //             for (var j = 0; j < vectexCount; j += 1) {
+        //                 var s = j * 3;
+        //                 geometry.vertices.push(
+        //                     vecticesF3.array[s],
+        //                     vecticesF3.array[s + 2],
+        //                     -vecticesF3.array[s + 1]
+        //                 );
+
+        //                 if (vecticesNormal3) {
+        //                     geometry.vertexNormals.push(
+        //                         vecticesNormal3.array[s],
+        //                         vecticesNormal3.array[s + 2],
+        //                         -vecticesNormal3.array[s + 1]
+        //                     );
+        //                 }
+        //                 if (vecticesUV2) {
+        //                     geometry.vertexUVs.push(
+        //                         vecticesUV2.array[j * 2],
+        //                         1 - vecticesUV2.array[j * 2 + 1]
+        //                     );
+        //                 }
+        //                 geometry.vertexColors.push(c.r, c.g, c.b, opacity);
+        //             }
+        //             // debugger
+        //             mesh.DEPTH_TEST = material.depthTest;
+        //             // mesh.backOrFront = 'both'
+        //             mesh.transparent = opacity < 1;
+        //             mesh.scale(6, 6, 6);
+        //             mesh.rotateZ(-48);
+        //             mesh.position(new AMap.LngLat(116.472605, 39.992075));
+        //             object3Dlayer.add(mesh);
+        //         }
+        //         this.map.add(object3Dlayer);
+        //     };
+
+        //     var onLoadMtl = function(materials) {
+        //         // for(var i=0;i<materials.length;i+=1){
+        //         // 	materials[i].side=2;
+        //         // }
+        //         objLoader.setModelName(modelName);
+        //         objLoader.setMaterials(materials);
+        //         objLoader.load(
+        //             'https://a.amap.com/jsapi_demos/static/demo-center/model/1519/1519.obj',
+        //             callbackOnLoad,
+        //             null,
+        //             null,
+        //             null,
+        //             false
+        //         );
+        //     };
+        //     objLoader.loadMtl(
+        //         'https://a.amap.com/jsapi_demos/static/demo-center/model/1519/1519.mtl',
+        //         null,
+        //         onLoadMtl
+        //     );
+        // },
         setTruck() {
             [
                 [102.706114, 24.985812],
