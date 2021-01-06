@@ -18,6 +18,9 @@
 
 <script>
 import AMap from 'AMap';
+const icon = require('@/assets/truck.jpg');
+// const icon = require('@/assets/car.png');
+
 export default {
     data() {
         return {
@@ -25,33 +28,32 @@ export default {
             map: null,
             buildingLayer: null,
             placeSearch: null,
+            marker: null,
             options: {
                 hideWithoutStyle: false, //是否隐藏设定区域外的楼块
                 areas: [
                     {
-                        //围栏1
                         //visible:false,//是否可见
                         rejectTexture: true, //是否屏蔽自定义地图的纹理
                         color1: 'ff990000', //楼顶颜色
                         color2: 'ffffcc00', //楼面颜色
                         path: [
-                            [102.705917,24.985819],
-                            [102.708121,24.985765],
-                            [102.70861,24.987063],
-                            [102.706249,24.987165],
-                            [102.705917,24.985819]
+                            [102.705917, 24.985819],
+                            [102.708121, 24.985765],
+                            [102.70861, 24.987063],
+                            [102.706249, 24.987165],
+                            [102.705917, 24.985819],
                         ],
                     },
                     {
-                        //围栏2
                         color1: 'ff99ff00',
                         color2: 'ff999900',
                         path: [
-                            [102.706507,24.98719],
-                            [102.708636,24.987097],
-                            [102.708878,24.987793],
-                            [102.706544,24.987783],
-                            [102.706507,24.98719],
+                            [102.706507, 24.98719],
+                            [102.708636, 24.987097],
+                            [102.708878, 24.987793],
+                            [102.706544, 24.987783],
+                            [102.706507, 24.98719],
                         ],
                     },
                 ],
@@ -89,7 +91,7 @@ export default {
                 zooms: [17, 20], //可见级别范围
             });
             this.map = new AMap.Map('map', {
-                center: [102.706208,24.986864],
+                center: [102.706208, 24.986864],
                 resizeEnable: true, //缩放
                 rotateEnable: true, //地图是否可旋转
                 pitchEnable: true, // 倾斜
@@ -120,6 +122,28 @@ export default {
             this.map.addControl(new AMap.Scale());
             this.setBuildStyle();
             this.searchAddress();
+            this.setTruck();
+        },
+        setTruck() {
+            [
+                [102.706114, 24.985812],
+                [102.707626, 24.985777],
+                [102.708259, 24.986128],
+                [102.708495, 24.986745],
+                [102.707927, 24.987095],
+                [102.70694, 24.987163],
+                [102.706124, 24.986726],
+                [102.706006, 24.986239],
+            ].map((position) => {
+                this.marker = new AMap.Marker({
+                    map: this.map,
+                    position,
+                    icon: icon,
+                    offset: new AMap.Pixel(-26, -13),
+                    autoRotation: true,
+                    // angle: -90,
+                });
+            });
         },
         searchAddress() {
             //构造地点查询类
