@@ -18,8 +18,14 @@
 
 <script>
 import AMap from 'AMap';
+// import * as THREE from 'three';
+// import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader';
+// import { DDSLoader } from 'three/examples/jsm/loaders/DDSLoader';
+import { OBJLoader2 } from 'three/examples/jsm/loaders/OBJLoader2';
+// console.log(THREE);
 const icon = require('@/assets/truck.png');
 
+// console.log(OBJLoader2);
 export default {
     data() {
         return {
@@ -91,11 +97,12 @@ export default {
             });
             this.map = new AMap.Map('map', {
                 center: [102.706208, 24.986864],
+                // center: [116.472605, 39.992075],
                 resizeEnable: true, //缩放
                 rotateEnable: true, //地图是否可旋转
                 pitchEnable: true, // 倾斜
                 zoom: 18,
-                // 地图俯仰角度，有效范围 0 度- 83 度
+                // // 地图俯仰角度，有效范围 0 度- 83 度
                 pitch: 80,
                 rotation: -15,
                 viewMode: '3D', //开启3D视图,默认为关闭
@@ -140,96 +147,97 @@ export default {
                 [1, 1, 1],
                 1
             );
+            this.setBuildModel()
         },
-        // setBuildModel() {
-        //     var modelName = 'building';
-        //     var objLoader = new THREE.OBJLoader2();
-        //     var callbackOnLoad = function(event) {
-        //         var object3Dlayer = new AMap.Object3DLayer();
-        //         var meshes = event.detail.loaderRootNode.children;
-        //         for (var i = 0; i < meshes.length; i++) {
-        //             var vecticesF3 = meshes[i].geometry.attributes.position;
-        //             var vecticesNormal3 = meshes[i].geometry.attributes.normal;
-        //             var vecticesUV2 = meshes[i].geometry.attributes.uv;
+        setBuildModel() {
+            var modelName = 'building';
+            var objLoader = new OBJLoader2();
+            console.log(objLoader);
+            var callbackOnLoad = (event)=> {
+                var object3Dlayer = new AMap.Object3DLayer();
+                console.log(event);
+                var meshes = event.children;
+                for (var i = 0; i < meshes.length; i++) {
+                    var vecticesF3 = meshes[i].geometry.attributes.position;
+                    var vecticesNormal3 = meshes[i].geometry.attributes.normal;
+                    var vecticesUV2 = meshes[i].geometry.attributes.uv;
 
-        //             var vectexCount = vecticesF3.count;
+                    var vectexCount = vecticesF3.count;
 
-        //             const mesh = new AMap.Object3D.MeshAcceptLights();
+                    const mesh = new AMap.Object3D.MeshAcceptLights();
 
-        //             var geometry = mesh.geometry;
+                    var geometry = mesh.geometry;
 
-        //             //底部一圈
-        //             // debugger
+                    //底部一圈
+                    // debugger
 
-        //             var c, opacity;
+                    var c, opacity;
 
-        //             var material = meshes[i].material[0] || meshes[i].material;
-        //             // debugger
-        //             if (material.map)
-        //                 mesh.textures.push(
-        //                     'https://a.amap.com/jsapi_demos/static/demo-center/model/1519/1519.bmp'
-        //                 );
+                    var material = meshes[i].material[0] || meshes[i].material;
+                    // debugger
+                    if (material.map)
+                        mesh.textures.push(
+                            'https://a.amap.com/jsapi_demos/static/demo-center/model/1519/1519.bmp'
+                        );
 
-        //             c = material.color;
-        //             opacity = material.opacity;
+                    c = material.color;
+                    opacity = material.opacity;
 
-        //             // debugger
-        //             for (var j = 0; j < vectexCount; j += 1) {
-        //                 var s = j * 3;
-        //                 geometry.vertices.push(
-        //                     vecticesF3.array[s],
-        //                     vecticesF3.array[s + 2],
-        //                     -vecticesF3.array[s + 1]
-        //                 );
+                    // debugger
+                    for (var j = 0; j < vectexCount; j += 1) {
+                        var s = j * 3;
+                        geometry.vertices.push(
+                            vecticesF3.array[s],
+                            vecticesF3.array[s + 2],
+                            -vecticesF3.array[s + 1]
+                        );
 
-        //                 if (vecticesNormal3) {
-        //                     geometry.vertexNormals.push(
-        //                         vecticesNormal3.array[s],
-        //                         vecticesNormal3.array[s + 2],
-        //                         -vecticesNormal3.array[s + 1]
-        //                     );
-        //                 }
-        //                 if (vecticesUV2) {
-        //                     geometry.vertexUVs.push(
-        //                         vecticesUV2.array[j * 2],
-        //                         1 - vecticesUV2.array[j * 2 + 1]
-        //                     );
-        //                 }
-        //                 geometry.vertexColors.push(c.r, c.g, c.b, opacity);
-        //             }
-        //             // debugger
-        //             mesh.DEPTH_TEST = material.depthTest;
-        //             // mesh.backOrFront = 'both'
-        //             mesh.transparent = opacity < 1;
-        //             mesh.scale(6, 6, 6);
-        //             mesh.rotateZ(-48);
-        //             mesh.position(new AMap.LngLat(116.472605, 39.992075));
-        //             object3Dlayer.add(mesh);
-        //         }
-        //         this.map.add(object3Dlayer);
-        //     };
+                        if (vecticesNormal3) {
+                            geometry.vertexNormals.push(
+                                vecticesNormal3.array[s],
+                                vecticesNormal3.array[s + 2],
+                                -vecticesNormal3.array[s + 1]
+                            );
+                        }
+                        if (vecticesUV2) {
+                            geometry.vertexUVs.push(
+                                vecticesUV2.array[j * 2],
+                                1 - vecticesUV2.array[j * 2 + 1]
+                            );
+                        }
+                        geometry.vertexColors.push(c.r, c.g, c.b, opacity);
+                    }
+                    // debugger
+                    mesh.DEPTH_TEST = material.depthTest;
+                    // mesh.backOrFront = 'both'
+                    mesh.transparent = opacity < 1;
+                    mesh.scale(6, 6, 6);
+                    mesh.rotateZ(-48);
+                    mesh.position(new AMap.LngLat(102.705747,24.984676));
+                    object3Dlayer.add(mesh);
+                }
+                this.map.add(object3Dlayer);
+            };
 
-        //     var onLoadMtl = function(materials) {
-        //         // for(var i=0;i<materials.length;i+=1){
-        //         // 	materials[i].side=2;
-        //         // }
-        //         objLoader.setModelName(modelName);
-        //         objLoader.setMaterials(materials);
-        //         objLoader.load(
-        //             'https://a.amap.com/jsapi_demos/static/demo-center/model/1519/1519.obj',
-        //             callbackOnLoad,
-        //             null,
-        //             null,
-        //             null,
-        //             false
-        //         );
-        //     };
-        //     objLoader.loadMtl(
-        //         'https://a.amap.com/jsapi_demos/static/demo-center/model/1519/1519.mtl',
-        //         null,
-        //         onLoadMtl
-        //     );
-        // },
+            var onLoadMtl = function(materials) {
+                objLoader.setModelName(modelName);
+                objLoader.addMaterials(materials);
+                objLoader.load(
+                    'https://a.amap.com/jsapi_demos/static/demo-center/model/1519/1519.obj',
+                    callbackOnLoad,
+                    null,
+                    null,
+                    null,
+                    false
+                );
+            };
+            console.log(onLoadMtl);
+            objLoader.load(
+                'https://a.amap.com/jsapi_demos/static/demo-center/model/1519/1519.mtl',
+                // null,
+                onLoadMtl
+            );
+        },
         setTruck() {
             [
                 [102.706114, 24.985812],
