@@ -18,14 +18,9 @@
 
 <script>
 import AMap from 'AMap';
-// import * as THREE from 'three';
-// import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader';
-// import { DDSLoader } from 'three/examples/jsm/loaders/DDSLoader';
 import { OBJLoader2 } from 'three/examples/jsm/loaders/OBJLoader2';
-// console.log(THREE);
 const icon = require('@/assets/truck.png');
 
-// console.log(OBJLoader2);
 export default {
     data() {
         return {
@@ -147,13 +142,12 @@ export default {
                 [1, 1, 1],
                 1
             );
-            this.setBuildModel()
+            this.setBuildModel();
         },
         setBuildModel() {
             var modelName = 'building';
             var objLoader = new OBJLoader2();
-            console.log(objLoader);
-            var callbackOnLoad = (event)=> {
+            var callbackOnLoad = (event) => {
                 var object3Dlayer = new AMap.Object3DLayer();
                 console.log(event);
                 var meshes = event.children;
@@ -165,7 +159,6 @@ export default {
                     var vectexCount = vecticesF3.count;
 
                     const mesh = new AMap.Object3D.MeshAcceptLights();
-
                     var geometry = mesh.geometry;
 
                     //底部一圈
@@ -175,10 +168,10 @@ export default {
 
                     var material = meshes[i].material[0] || meshes[i].material;
                     // debugger
-                    if (material.map)
-                        mesh.textures.push(
-                            'https://a.amap.com/jsapi_demos/static/demo-center/model/1519/1519.bmp'
-                        );
+                    // if (material.map)
+                    mesh.textures.push(
+                        'https://a.amap.com/jsapi_demos/static/demo-center/model/1519/1519.bmp'
+                    );
 
                     c = material.color;
                     opacity = material.opacity;
@@ -213,12 +206,11 @@ export default {
                     mesh.transparent = opacity < 1;
                     mesh.scale(6, 6, 6);
                     mesh.rotateZ(-48);
-                    mesh.position(new AMap.LngLat(102.705747,24.984676));
+                    mesh.position(new AMap.LngLat(102.705747, 24.984676));
                     object3Dlayer.add(mesh);
                 }
                 this.map.add(object3Dlayer);
             };
-
             var onLoadMtl = function(materials) {
                 objLoader.setModelName(modelName);
                 objLoader.addMaterials(materials);
@@ -231,7 +223,6 @@ export default {
                     false
                 );
             };
-            console.log(onLoadMtl);
             objLoader.load(
                 'https://a.amap.com/jsapi_demos/static/demo-center/model/1519/1519.mtl',
                 // null,
