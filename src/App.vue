@@ -152,6 +152,7 @@ export default {
                 1
             );
             this.setBuildModel();
+            this.setTruckModel();
             this.setLine();
             this.setMark();
             this.setTruck();
@@ -183,6 +184,88 @@ export default {
             // 将 markers 添加到地图
             this.map.add(markers);
         },
+        setTruckModel() {
+            var modelName = 'building';
+            var objLoader = new OBJLoader2();
+            var callbackOnLoad = (event) => {
+                var object3Dlayer = new AMap.Object3DLayer();
+                var meshes = event.children;
+                for (var i = 0; i < meshes.length; i++) {
+                    var vecticesF3 = meshes[i].geometry.attributes.position;
+                    var vecticesNormal3 = meshes[i].geometry.attributes.normal;
+                    var vecticesUV2 = meshes[i].geometry.attributes.uv;
+
+                    var vectexCount = vecticesF3.count;
+
+                    const mesh = new AMap.Object3D.MeshAcceptLights();
+                    var geometry = mesh.geometry;
+
+                    //底部一圈
+                    // debugger
+
+                    var c, opacity;
+
+                    var material = meshes[i].material[0] || meshes[i].material;
+                    // debugger
+                    // if (material.map)  建筑瓷砖
+                    mesh.textures.push('/static/model/bus.jpg');
+
+                    c = material.color;
+                    opacity = material.opacity;
+
+                    // debugger
+                    for (var j = 0; j < vectexCount; j += 1) {
+                        var s = j * 3;
+                        geometry.vertices.push(
+                            vecticesF3.array[s],
+                            vecticesF3.array[s + 2],
+                            -vecticesF3.array[s + 1]
+                        );
+
+                        if (vecticesNormal3) {
+                            geometry.vertexNormals.push(
+                                vecticesNormal3.array[s],
+                                vecticesNormal3.array[s + 2],
+                                -vecticesNormal3.array[s + 1]
+                            );
+                        }
+                        if (vecticesUV2) {
+                            geometry.vertexUVs.push(
+                                vecticesUV2.array[j * 2],
+                                1 - vecticesUV2.array[j * 2 + 1]
+                            );
+                        }
+                        geometry.vertexColors.push(c.r, c.g, c.b, opacity);
+                    }
+                    // debugger
+                    mesh.DEPTH_TEST = material.depthTest;
+                    // mesh.backOrFront = 'both'
+                    mesh.transparent = opacity < 1;
+                    mesh.scale(6, 6, 6);
+                    mesh.rotateZ(-48);
+                    mesh.position(new AMap.LngLat(102.705485,24.983756));
+                    object3Dlayer.add(mesh);
+                }
+                this.map.add(object3Dlayer);
+            };
+            var onLoadMtl = function(materials) {
+                objLoader.setModelName(modelName);
+                objLoader.addMaterials(materials);
+                objLoader.load(
+                    '/static/model/bus.obj',
+                    callbackOnLoad,
+                    null,
+                    null,
+                    null,
+                    false
+                );
+            };
+            objLoader.load(
+                '/static/model/bus.mtl',
+                // null,
+                onLoadMtl
+            );
+        },
         setBuildModel() {
             var modelName = 'building';
             var objLoader = new OBJLoader2();
@@ -208,8 +291,7 @@ export default {
                     // debugger
                     // if (material.map)  建筑瓷砖
                     mesh.textures.push(
-                        // 'https://a.amap.com/jsapi_demos/static/demo-center/model/1519/1519.bmp'
-                        '/static/model/bus.jpg'
+                        'https://a.amap.com/jsapi_demos/static/demo-center/model/1519/1519.bmp'
                     );
 
                     c = material.color;
@@ -254,8 +336,7 @@ export default {
                 objLoader.setModelName(modelName);
                 objLoader.addMaterials(materials);
                 objLoader.load(
-                    // 'https://a.amap.com/jsapi_demos/static/demo-center/model/1519/1519.obj',
-                    '/static/model/bus.obj',
+                    'https://a.amap.com/jsapi_demos/static/demo-center/model/1519/1519.obj',
                     callbackOnLoad,
                     null,
                     null,
@@ -264,8 +345,7 @@ export default {
                 );
             };
             objLoader.load(
-                // 'https://a.amap.com/jsapi_demos/static/demo-center/model/1519/1519.mtl',
-                '/static/model/bus.mtl',
+                'https://a.amap.com/jsapi_demos/static/demo-center/model/1519/1519.mtl',
                 // null,
                 onLoadMtl
             );
@@ -283,7 +363,7 @@ export default {
                     icon: icon,
                     offset: new AMap.Pixel(-20, 43),
                     autoRotation: true,
-                    angle: Math.floor(Math.random() * (100)),
+                    angle: Math.floor(Math.random() * 100),
                 });
             });
         },
