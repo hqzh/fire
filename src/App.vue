@@ -91,14 +91,14 @@ export default {
                 zooms: [17, 20], //可见级别范围
             });
             this.map = new AMap.Map('map', {
-                center: [102.706208, 24.986864],
-                // center: [116.472605, 39.992075],
+                // center: [102.706208, 24.986864],
+                center: [102.833722,25.43539],
                 resizeEnable: true, //缩放
                 rotateEnable: true, //地图是否可旋转
                 pitchEnable: true, // 倾斜
-                zoom: 18,
+                zoom: 9,
                 // // 地图俯仰角度，有效范围 0 度- 83 度
-                pitch: 80,
+                // pitch: 80,
                 rotation: -15,
                 viewMode: '3D', //开启3D视图,默认为关闭
                 buildingAnimation: true, //楼块出现是否带动画
@@ -143,6 +143,7 @@ export default {
                 1
             );
             this.setBuildModel();
+            this.setLine();
         },
         setBuildModel() {
             var modelName = 'building';
@@ -280,6 +281,30 @@ export default {
                 return;
             }
             this.placeSearch.search(this.input);
+        },
+        setLine() {
+            var object3Dlayer = new AMap.Object3DLayer({ zIndex: 1 });
+            this.map.add(object3Dlayer);
+            //利用行政区查询获取路径
+            var district = new AMap.DistrictSearch({
+                subdistrict: 0,
+                extensions: 'all',
+                level: 'city',
+            });
+
+            district.search('昆明市', function(status, result) {
+                var bounds = result.districtList[0].boundaries;
+                var height = 30000;
+                var color = '#0088ffcc'; //rgba
+                var wall = new AMap.Object3D.Wall({
+                    path: bounds,
+                    height: height,
+                    color: color,
+                });
+                wall.backOrFront = 'both';
+                wall.transparent = true;
+                object3Dlayer.add(wall);
+            });
         },
         onSelect(e) {
             //这里获得点选地点的经纬度
