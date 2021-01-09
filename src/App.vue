@@ -92,7 +92,7 @@ export default {
             });
             this.map = new AMap.Map('map', {
                 // center: [102.706208, 24.986864],
-                center: [102.833722,25.43539],
+                center: [102.833722, 25.43539],
                 resizeEnable: true, //缩放
                 rotateEnable: true, //地图是否可旋转
                 pitchEnable: true, // 倾斜
@@ -144,13 +144,41 @@ export default {
             );
             this.setBuildModel();
             this.setLine();
+            this.setMark();
+        },
+        setMark() {
+            var endIcon = new AMap.Icon({
+                size: new AMap.Size(62, 47),
+                image: '/static/fire.gif',
+                imageSize: new AMap.Size(62, 47),
+            });
+            //
+            const markers = [
+                [102.70571, 24.98466],
+                [103.258265,25.543077],
+                [103.186049,26.075335],
+                [103.037529,25.32561],
+                [102.497359,25.217404],
+                [102.455077,24.946699],
+                [102.592422,24.671623],
+                [103.151339,24.921936],
+                [103.28623,24.779472],
+            ].map((item) => {
+                return new AMap.Marker({
+                    position: new AMap.LngLat(...item),
+                    icon: endIcon,
+                    offset: new AMap.Pixel(-13, -30),
+                });
+            });
+
+            // 将 markers 添加到地图
+            this.map.add(markers);
         },
         setBuildModel() {
             var modelName = 'building';
             var objLoader = new OBJLoader2();
             var callbackOnLoad = (event) => {
                 var object3Dlayer = new AMap.Object3DLayer();
-                console.log(event);
                 var meshes = event.children;
                 for (var i = 0; i < meshes.length; i++) {
                     var vecticesF3 = meshes[i].geometry.attributes.position;
