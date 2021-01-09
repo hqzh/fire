@@ -24,7 +24,7 @@ const icon = require('@/assets/truck.png');
 export default {
     data() {
         return {
-            input: '沃尔玛(前兴路)',
+            input: '大商园建材城办公大楼',
             map: null,
             buildingLayer: null,
             placeSearch: null,
@@ -168,9 +168,10 @@ export default {
 
                     var material = meshes[i].material[0] || meshes[i].material;
                     // debugger
-                    // if (material.map)
+                    // if (material.map)  建筑瓷砖
                     mesh.textures.push(
-                        'https://a.amap.com/jsapi_demos/static/demo-center/model/1519/1519.bmp'
+                        // 'https://a.amap.com/jsapi_demos/static/demo-center/model/1519/1519.bmp'
+                        '/static/model/bus.jpg'
                     );
 
                     c = material.color;
@@ -215,7 +216,8 @@ export default {
                 objLoader.setModelName(modelName);
                 objLoader.addMaterials(materials);
                 objLoader.load(
-                    'https://a.amap.com/jsapi_demos/static/demo-center/model/1519/1519.obj',
+                    // 'https://a.amap.com/jsapi_demos/static/demo-center/model/1519/1519.obj',
+                    '/static/model/bus.obj',
                     callbackOnLoad,
                     null,
                     null,
@@ -224,7 +226,8 @@ export default {
                 );
             };
             objLoader.load(
-                'https://a.amap.com/jsapi_demos/static/demo-center/model/1519/1519.mtl',
+                // 'https://a.amap.com/jsapi_demos/static/demo-center/model/1519/1519.mtl',
+                '/static/model/bus.mtl',
                 // null,
                 onLoadMtl
             );
