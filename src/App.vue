@@ -19,7 +19,6 @@
 <script>
 import AMap from 'AMap';
 import { OBJLoader2 } from 'three/examples/jsm/loaders/OBJLoader2';
-const icon = require('@/assets/truck.png');
 
 export default {
     data() {
@@ -49,15 +48,26 @@ export default {
                         color1: 'ff99ff00',
                         color2: 'ff999900',
                         path: [
-                            [102.703621,24.985043],
-                            [102.705257,24.984921],
-                            [102.704834,24.983521],
-                            [102.703482,24.983944],
-                            [102.703621,24.985043],
+                            [102.703621, 24.985043],
+                            [102.705257, 24.984921],
+                            [102.704834, 24.983521],
+                            [102.703482, 24.983944],
+                            [102.703621, 24.985043],
                         ],
                     },
                 ],
             },
+            markers: [
+                [102.70571, 24.98466],
+                [103.258265, 25.543077],
+                [103.186049, 26.075335],
+                [103.037529, 25.32561],
+                [102.497359, 25.217404],
+                [102.455077, 24.946699],
+                [102.592422, 24.671623],
+                [103.151339, 24.921936],
+                [103.28623, 24.779472],
+            ],
         };
     },
     mounted() {
@@ -123,7 +133,6 @@ export default {
             this.map.addControl(new AMap.Scale());
             this.setBuildStyle();
             this.searchAddress();
-            // this.setTruck();
 
             // 如果调不好光照的话，后面取消，让建筑模型通红
             // 设置地图的环境光源(color,intensity)
@@ -145,28 +154,19 @@ export default {
             this.setBuildModel();
             this.setLine();
             this.setMark();
+            this.setTruck();
         },
         setMark() {
-            var endIcon = new AMap.Icon({
+            var icon = new AMap.Icon({
                 size: new AMap.Size(62, 47),
                 image: '/static/fire.gif',
                 imageSize: new AMap.Size(62, 47),
             });
-            const markers = [
-                [102.70571, 24.98466],
-                [103.258265, 25.543077],
-                [103.186049, 26.075335],
-                [103.037529, 25.32561],
-                [102.497359, 25.217404],
-                [102.455077, 24.946699],
-                [102.592422, 24.671623],
-                [103.151339, 24.921936],
-                [103.28623, 24.779472],
-            ].map((item) => {
+            const markers = this.markers.map((item) => {
                 const m = new AMap.Marker({
                     position: new AMap.LngLat(...item),
-                    icon: endIcon,
-                    offset: new AMap.Pixel(-13, -30),
+                    icon: icon,
+                    offset: new AMap.Pixel(-30, -23),
                 });
                 m.on('click', (e) => {
                     console.log(e);
@@ -271,23 +271,19 @@ export default {
             );
         },
         setTruck() {
-            [
-                [102.706114, 24.985812],
-                [102.707626, 24.985777],
-                [102.708259, 24.986128],
-                [102.708495, 24.986745],
-                [102.707927, 24.987095],
-                [102.70694, 24.987163],
-                [102.706124, 24.986726],
-                [102.706006, 24.986239],
-            ].map((position) => {
+            const icon = new AMap.Icon({
+                size: new AMap.Size(48, 20),
+                image: '/static/truck.png',
+                imageSize: new AMap.Size(48, 20),
+            });
+            this.markers.map((position) => {
                 this.marker = new AMap.Marker({
                     map: this.map,
                     position,
                     icon: icon,
-                    offset: new AMap.Pixel(-26, -13),
+                    offset: new AMap.Pixel(-20, 43),
                     autoRotation: true,
-                    // angle: -90,
+                    angle: Math.floor(Math.random() * (100)),
                 });
             });
         },
