@@ -18,13 +18,12 @@
 
 <script>
 import AMap from 'AMap';
-const icon = require('@/assets/truck.jpg');
-// const icon = require('@/assets/car.png');
+import { OBJLoader2 } from 'three/examples/jsm/loaders/OBJLoader2';
 
 export default {
     data() {
         return {
-            input: '沃尔玛(前兴路)',
+            input: '大商园建材城办公大楼',
             map: null,
             buildingLayer: null,
             placeSearch: null,
@@ -35,8 +34,8 @@ export default {
                     {
                         //visible:false,//是否可见
                         rejectTexture: true, //是否屏蔽自定义地图的纹理
-                        color1: 'ff990000', //楼顶颜色
-                        color2: 'ffffcc00', //楼面颜色
+                        color1: 'ff99ff00', //楼顶颜色
+                        color2: 'ff999900', //楼面颜色
                         path: [
                             [102.705917, 24.985819],
                             [102.708121, 24.985765],
@@ -49,15 +48,26 @@ export default {
                         color1: 'ff99ff00',
                         color2: 'ff999900',
                         path: [
-                            [102.706507, 24.98719],
-                            [102.708636, 24.987097],
-                            [102.708878, 24.987793],
-                            [102.706544, 24.987783],
-                            [102.706507, 24.98719],
+                            [102.703621, 24.985043],
+                            [102.705257, 24.984921],
+                            [102.704834, 24.983521],
+                            [102.703482, 24.983944],
+                            [102.703621, 24.985043],
                         ],
                     },
                 ],
             },
+            markers: [
+                [102.70571, 24.98466],
+                [103.258265, 25.543077],
+                [103.186049, 26.075335],
+                [103.037529, 25.32561],
+                [102.497359, 25.217404],
+                [102.455077, 24.946699],
+                [102.592422, 24.671623],
+                [103.151339, 24.921936],
+                [103.28623, 24.779472],
+            ],
         };
     },
     mounted() {
@@ -91,13 +101,14 @@ export default {
                 zooms: [17, 20], //可见级别范围
             });
             this.map = new AMap.Map('map', {
-                center: [102.706208, 24.986864],
+                // center: [102.706208, 24.986864],
+                center: [102.833722, 25.43539],
                 resizeEnable: true, //缩放
                 rotateEnable: true, //地图是否可旋转
                 pitchEnable: true, // 倾斜
-                zoom: 18,
-                // 地图俯仰角度，有效范围 0 度- 83 度
-                pitch: 80,
+                zoom: 9,
+                // // 地图俯仰角度，有效范围 0 度- 83 度
+                // pitch: 80,
                 rotation: -15,
                 viewMode: '3D', //开启3D视图,默认为关闭
                 buildingAnimation: true, //楼块出现是否带动画
@@ -122,26 +133,237 @@ export default {
             this.map.addControl(new AMap.Scale());
             this.setBuildStyle();
             this.searchAddress();
+
+            // 如果调不好光照的话，后面取消，让建筑模型通红
+            // 设置地图的环境光源(color,intensity)
+            // color用来描述光照的颜色，为一个三个元素的数组，每个元素代表RGB的三个分量，每个分量的取值范围[0,1]；
+            // intensity用来描述光照强度，取值范围[0,1]；
+
+            this.map.AmbientLight = new AMap.Lights.AmbientLight([1, 1, 1], 1);
+            // 设置地图的平行光照(direction,color,intensity)
+            // direction用来描述光的照射方向，为一个三个元素的数组，分别代表方向的xyz分量。direction为相对于地图平面的方向，x 正方向朝东，y 正方向朝南，z 正方向朝下
+            // color用来描述光照的颜色，为一个三个元素的数组，每个元素代表RGB的三个分量，每个分量的取值范围[0,1]；
+            // intensity用来描述光照强度，取值范围[0,1]；
+            // 如下: 描述了一个从正南方斜向下照射的一道平行光
+            // var dir = new M.Lights.DirectionLight([0, -1, 1],[1, 1, 1],0.1)
+            this.map.DirectionLight = new AMap.Lights.DirectionLight(
+                [1, 0, -0.5],
+                [1, 1, 1],
+                1
+            );
+            this.setBuildModel();
+            this.setTruckModel();
+            this.setLine();
+            this.setMark();
             this.setTruck();
         },
+        setMark() {
+            var icon = new AMap.Icon({
+                size: new AMap.Size(62, 47),
+                image: '/static/fire.gif',
+                imageSize: new AMap.Size(62, 47),
+            });
+            const markers = this.markers.map((item) => {
+                const m = new AMap.Marker({
+                    position: new AMap.LngLat(...item),
+                    icon: icon,
+                    offset: new AMap.Pixel(-30, -23),
+                });
+                m.on('click', (e) => {
+                    console.log(e);
+                    // 清除地图覆盖物
+                    this.map.clearMap();
+                    //动态设置地图中心点和展示层级
+                    this.map.setZoomAndCenter(18, [102.70571, 24.98466]);
+                    // 动态设置俯仰度
+                    this.map.setPitch(80);
+                });
+                return m;
+            });
+
+            // 将 markers 添加到地图
+            this.map.add(markers);
+        },
+        setTruckModel() {
+            var modelName = 'building';
+            var objLoader = new OBJLoader2();
+            var callbackOnLoad = (event) => {
+                var object3Dlayer = new AMap.Object3DLayer();
+                var meshes = event.children;
+                for (var i = 0; i < meshes.length; i++) {
+                    var vecticesF3 = meshes[i].geometry.attributes.position;
+                    var vecticesNormal3 = meshes[i].geometry.attributes.normal;
+                    var vecticesUV2 = meshes[i].geometry.attributes.uv;
+
+                    var vectexCount = vecticesF3.count;
+
+                    const mesh = new AMap.Object3D.MeshAcceptLights();
+                    var geometry = mesh.geometry;
+
+                    //底部一圈
+                    // debugger
+
+                    var c, opacity;
+
+                    var material = meshes[i].material[0] || meshes[i].material;
+                    // debugger
+                    // if (material.map)  建筑瓷砖
+                    mesh.textures.push('/static/model/bus.jpg');
+
+                    c = material.color;
+                    opacity = material.opacity;
+
+                    // debugger
+                    for (var j = 0; j < vectexCount; j += 1) {
+                        var s = j * 3;
+                        geometry.vertices.push(
+                            vecticesF3.array[s],
+                            vecticesF3.array[s + 2],
+                            -vecticesF3.array[s + 1]
+                        );
+
+                        if (vecticesNormal3) {
+                            geometry.vertexNormals.push(
+                                vecticesNormal3.array[s],
+                                vecticesNormal3.array[s + 2],
+                                -vecticesNormal3.array[s + 1]
+                            );
+                        }
+                        if (vecticesUV2) {
+                            geometry.vertexUVs.push(
+                                vecticesUV2.array[j * 2],
+                                1 - vecticesUV2.array[j * 2 + 1]
+                            );
+                        }
+                        geometry.vertexColors.push(c.r, c.g, c.b, opacity);
+                    }
+                    // debugger
+                    mesh.DEPTH_TEST = material.depthTest;
+                    // mesh.backOrFront = 'both'
+                    mesh.transparent = opacity < 1;
+                    mesh.scale(6, 6, 6);
+                    mesh.rotateZ(-48);
+                    mesh.position(new AMap.LngLat(102.705485,24.983756));
+                    object3Dlayer.add(mesh);
+                }
+                this.map.add(object3Dlayer);
+            };
+            var onLoadMtl = function(materials) {
+                objLoader.setModelName(modelName);
+                objLoader.addMaterials(materials);
+                objLoader.load(
+                    '/static/model/bus.obj',
+                    callbackOnLoad,
+                    null,
+                    null,
+                    null,
+                    false
+                );
+            };
+            objLoader.load(
+                '/static/model/bus.mtl',
+                // null,
+                onLoadMtl
+            );
+        },
+        setBuildModel() {
+            var modelName = 'building';
+            var objLoader = new OBJLoader2();
+            var callbackOnLoad = (event) => {
+                var object3Dlayer = new AMap.Object3DLayer();
+                var meshes = event.children;
+                for (var i = 0; i < meshes.length; i++) {
+                    var vecticesF3 = meshes[i].geometry.attributes.position;
+                    var vecticesNormal3 = meshes[i].geometry.attributes.normal;
+                    var vecticesUV2 = meshes[i].geometry.attributes.uv;
+
+                    var vectexCount = vecticesF3.count;
+
+                    const mesh = new AMap.Object3D.MeshAcceptLights();
+                    var geometry = mesh.geometry;
+
+                    //底部一圈
+                    // debugger
+
+                    var c, opacity;
+
+                    var material = meshes[i].material[0] || meshes[i].material;
+                    // debugger
+                    // if (material.map)  建筑瓷砖
+                    mesh.textures.push(
+                        'https://a.amap.com/jsapi_demos/static/demo-center/model/1519/1519.bmp'
+                    );
+
+                    c = material.color;
+                    opacity = material.opacity;
+
+                    // debugger
+                    for (var j = 0; j < vectexCount; j += 1) {
+                        var s = j * 3;
+                        geometry.vertices.push(
+                            vecticesF3.array[s],
+                            vecticesF3.array[s + 2],
+                            -vecticesF3.array[s + 1]
+                        );
+
+                        if (vecticesNormal3) {
+                            geometry.vertexNormals.push(
+                                vecticesNormal3.array[s],
+                                vecticesNormal3.array[s + 2],
+                                -vecticesNormal3.array[s + 1]
+                            );
+                        }
+                        if (vecticesUV2) {
+                            geometry.vertexUVs.push(
+                                vecticesUV2.array[j * 2],
+                                1 - vecticesUV2.array[j * 2 + 1]
+                            );
+                        }
+                        geometry.vertexColors.push(c.r, c.g, c.b, opacity);
+                    }
+                    // debugger
+                    mesh.DEPTH_TEST = material.depthTest;
+                    // mesh.backOrFront = 'both'
+                    mesh.transparent = opacity < 1;
+                    mesh.scale(6, 6, 6);
+                    mesh.rotateZ(-48);
+                    mesh.position(new AMap.LngLat(102.705747, 24.984676));
+                    object3Dlayer.add(mesh);
+                }
+                this.map.add(object3Dlayer);
+            };
+            var onLoadMtl = function(materials) {
+                objLoader.setModelName(modelName);
+                objLoader.addMaterials(materials);
+                objLoader.load(
+                    'https://a.amap.com/jsapi_demos/static/demo-center/model/1519/1519.obj',
+                    callbackOnLoad,
+                    null,
+                    null,
+                    null,
+                    false
+                );
+            };
+            objLoader.load(
+                'https://a.amap.com/jsapi_demos/static/demo-center/model/1519/1519.mtl',
+                // null,
+                onLoadMtl
+            );
+        },
         setTruck() {
-            [
-                [102.706114, 24.985812],
-                [102.707626, 24.985777],
-                [102.708259, 24.986128],
-                [102.708495, 24.986745],
-                [102.707927, 24.987095],
-                [102.70694, 24.987163],
-                [102.706124, 24.986726],
-                [102.706006, 24.986239],
-            ].map((position) => {
+            const icon = new AMap.Icon({
+                size: new AMap.Size(48, 20),
+                image: '/static/truck.png',
+                imageSize: new AMap.Size(48, 20),
+            });
+            this.markers.map((position) => {
                 this.marker = new AMap.Marker({
                     map: this.map,
                     position,
                     icon: icon,
-                    offset: new AMap.Pixel(-26, -13),
+                    offset: new AMap.Pixel(-20, 43),
                     autoRotation: true,
-                    // angle: -90,
+                    angle: Math.floor(Math.random() * 100),
                 });
             });
         },
@@ -172,6 +394,30 @@ export default {
                 return;
             }
             this.placeSearch.search(this.input);
+        },
+        setLine() {
+            var object3Dlayer = new AMap.Object3DLayer({ zIndex: 1 });
+            this.map.add(object3Dlayer);
+            //利用行政区查询获取路径
+            var district = new AMap.DistrictSearch({
+                subdistrict: 0,
+                extensions: 'all',
+                level: 'city',
+            });
+
+            district.search('昆明市', function(status, result) {
+                var bounds = result.districtList[0].boundaries;
+                var height = 30000;
+                var color = '#0088ffcc'; //rgba
+                var wall = new AMap.Object3D.Wall({
+                    path: bounds,
+                    height: height,
+                    color: color,
+                });
+                wall.backOrFront = 'both';
+                wall.transparent = true;
+                object3Dlayer.add(wall);
+            });
         },
         onSelect(e) {
             //这里获得点选地点的经纬度
