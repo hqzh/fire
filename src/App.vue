@@ -58,15 +58,15 @@ export default {
                 ],
             },
             markers: [
-                [102.70571, 24.98466],
-                [103.258265, 25.543077],
-                [103.186049, 26.075335],
-                [103.037529, 25.32561],
-                [102.497359, 25.217404],
-                [102.455077, 24.946699],
-                [102.592422, 24.671623],
-                [103.151339, 24.921936],
-                [103.28623, 24.779472],
+                {position:[102.70571, 24.98466],address:'昆明市西山区前兴路东大商园内'},
+                {position:[103.2584,25.54295],address:'昆明市寻甸回族彝族自治县大花桥农贸市场'},
+                {position:[103.183401,26.073369],address:'昆明市东川区体育场南50米(209省道西)'},
+                {position:[103.038382,25.322492],address:'昆明市嵩明县嵩明公路管理段2号院东南乔华家居建材城'},
+                {position:[102.501071,25.21075],address:'昆明市富民县永南大街佳逸小区'},
+                {position:[102.366938,24.93828],address:'昆明市嵩明县天创路8附近云天化集团'},
+                {position:[102.596094,24.674432],address:'昆明市晋宁区富昆路昆明圣玛莉医院东侧'},
+                {position:[103.152573,24.920524],address:'昆明市宜良县迎宾路137号永佳KTV'},
+                {position:[103.280753,24.778896],address:'昆明市石林彝族自治县昌乐路东100米石林生态工业集中区金恒公租房'},
             ],
         };
     },
@@ -155,19 +155,43 @@ export default {
             this.setTruckModel();
             this.setLine();
             this.setMark();
-            this.setTruck();
+            // this.setTruck();
         },
         setMark() {
             var icon = new AMap.Icon({
-                size: new AMap.Size(62, 47),
-                image: '/static/fire.gif',
-                imageSize: new AMap.Size(62, 47),
+                size: new AMap.Size(20, 20),
+                image: '/static/fire.png',
+                imageSize: new AMap.Size(20, 20),
             });
+
             const markers = this.markers.map((item) => {
                 const m = new AMap.Marker({
-                    position: new AMap.LngLat(...item),
+                    position: new AMap.LngLat(...item.position),
                     icon: icon,
-                    offset: new AMap.Pixel(-30, -23),
+                    offset: new AMap.Pixel(-10, 5),
+                });
+                const text = new AMap.Text({
+                    position: new AMap.LngLat(...item.position),
+                    text: item.address,
+                    // offset: new AMap.Pixel(35, -15),
+                    map: this.map,
+                    anchor:'bottom-left',
+                    style: {
+                        color: 'red',
+                        'border-color': 'red',
+                        'font-size': '12px',
+                        padding:'10px',
+                        // width:'100px',
+                    },
+                });
+                text.on('click', (e) => {
+                    console.log(e);
+                    // 清除地图覆盖物
+                    this.map.clearMap();
+                    //动态设置地图中心点和展示层级
+                    this.map.setZoomAndCenter(18, [102.70571, 24.98466]);
+                    // 动态设置俯仰度
+                    this.map.setPitch(80);
                 });
                 m.on('click', (e) => {
                     console.log(e);
@@ -208,7 +232,7 @@ export default {
                     var material = meshes[i].material[0] || meshes[i].material;
                     // debugger
                     // if (material.map)  建筑瓷砖
-                    mesh.textures.push('/static/model/bus.jpg');
+                    mesh.textures.push('/static/model/fire.png');
 
                     c = material.color;
                     opacity = material.opacity;
@@ -241,9 +265,9 @@ export default {
                     mesh.DEPTH_TEST = material.depthTest;
                     // mesh.backOrFront = 'both'
                     mesh.transparent = opacity < 1;
-                    mesh.scale(6, 6, 6);
-                    mesh.rotateZ(-48);
-                    mesh.position(new AMap.LngLat(102.705485,24.983756));
+                    mesh.scale(3, 3, 3);
+                    mesh.rotateZ(48);
+                    mesh.position(new AMap.LngLat(102.705485, 24.983756));
                     object3Dlayer.add(mesh);
                 }
                 this.map.add(object3Dlayer);
@@ -252,7 +276,7 @@ export default {
                 objLoader.setModelName(modelName);
                 objLoader.addMaterials(materials);
                 objLoader.load(
-                    '/static/model/bus.obj',
+                    '/static/model/fire.obj',
                     callbackOnLoad,
                     null,
                     null,
@@ -261,7 +285,7 @@ export default {
                 );
             };
             objLoader.load(
-                '/static/model/bus.mtl',
+                '/static/model/fire.mtl',
                 // null,
                 onLoadMtl
             );
@@ -290,9 +314,9 @@ export default {
                     var material = meshes[i].material[0] || meshes[i].material;
                     // debugger
                     // if (material.map)  建筑瓷砖
-                    mesh.textures.push(
-                        'https://a.amap.com/jsapi_demos/static/demo-center/model/1519/1519.bmp'
-                    );
+                    // mesh.textures.push(
+                    //     'https://a.amap.com/jsapi_demos/static/demo-center/model/1519/1519.bmp'
+                    // );
 
                     c = material.color;
                     opacity = material.opacity;
@@ -337,6 +361,7 @@ export default {
                 objLoader.addMaterials(materials);
                 objLoader.load(
                     'https://a.amap.com/jsapi_demos/static/demo-center/model/1519/1519.obj',
+                    // '/static/model/2.obj',
                     callbackOnLoad,
                     null,
                     null,
@@ -346,6 +371,7 @@ export default {
             };
             objLoader.load(
                 'https://a.amap.com/jsapi_demos/static/demo-center/model/1519/1519.mtl',
+                // '/static/model/2.mtl',
                 // null,
                 onLoadMtl
             );
@@ -356,10 +382,10 @@ export default {
                 image: '/static/truck.png',
                 imageSize: new AMap.Size(48, 20),
             });
-            this.markers.map((position) => {
+            this.markers.map((item) => {
                 this.marker = new AMap.Marker({
                     map: this.map,
-                    position,
+                    position:item.position,
                     icon: icon,
                     offset: new AMap.Pixel(-20, 43),
                     autoRotation: true,
