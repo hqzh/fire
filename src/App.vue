@@ -109,7 +109,7 @@ export default {
                 zoom: 9,
                 // // 地图俯仰角度，有效范围 0 度- 83 度
                 // pitch: 80,
-                rotation: -15,
+                // rotation: -15,
                 viewMode: '3D', //开启3D视图,默认为关闭
                 buildingAnimation: true, //楼块出现是否带动画
                 // zooms 表示地图显示的缩放级别范围。在PC上，默认为[3,18]，取值范围[3-18]；在移动设备上，默认为[3,19],取值范围[3-19] 。
@@ -131,7 +131,7 @@ export default {
                 })
             );
             this.map.addControl(new AMap.Scale());
-            this.setBuildStyle();
+            // this.setBuildStyle();
             this.searchAddress();
 
             // 如果调不好光照的话，后面取消，让建筑模型通红
@@ -156,6 +156,8 @@ export default {
             this.setLine();
             this.setMark();
             // this.setTruck();
+                    console.log(this.map);
+
         },
         setMark() {
             var icon = new AMap.Icon({
@@ -192,6 +194,7 @@ export default {
                     this.map.setZoomAndCenter(18, [102.70571, 24.98466]);
                     // 动态设置俯仰度
                     this.map.setPitch(80);
+                    this.map.setRotation(-15);
                 });
                 m.on('click', (e) => {
                     console.log(e);
@@ -201,6 +204,7 @@ export default {
                     this.map.setZoomAndCenter(18, [102.70571, 24.98466]);
                     // 动态设置俯仰度
                     this.map.setPitch(80);
+                    this.map.setRotation(-15);
                 });
                 return m;
             });
