@@ -108,7 +108,7 @@ export default {
                     title: '我是二号车',
                 },
                 {
-                    position: [102.705611, 24.984544],
+                    position: [102.705565, 24.984258],
                     angle: 280,
                     title: '我是三号车',
                 },
@@ -124,7 +124,8 @@ export default {
 
             new AMap.Polygon({
                 bubble: true,
-                fillOpacity: 0.4,
+                fillColor: 'green',
+                fillOpacity: 0.2,
                 strokeWeight: 1,
                 path: this.options.areas[0].path,
                 map: this.map,
@@ -139,12 +140,12 @@ export default {
             });
         },
         async init() {
-            // this.buildingLayer = new AMap.Buildings({
-            //     zIndex: 130,
-            //     merge: false,
-            //     sort: false,
-            //     zooms: [17, 20], //可见级别范围
-            // });
+            this.buildingLayer = new AMap.Buildings({
+                zIndex: 130,
+                merge: false,
+                sort: false,
+                zooms: [17, 20], //可见级别范围
+            });
             this.map = new AMap.Map('map', {
                 // center: [102.706208, 24.986864],
                 center: [102.833722, 25.43539],
@@ -161,20 +162,15 @@ export default {
                 // 当 expandZoomRange 为 true 时， zooms的最大级别在PC上可以扩大到20级（移动端还是高清19/非高清20 ）。
                 expandZoomRange: true,
                 zooms: [3, 20],
-                // layers: [new AMap.TileLayer(), this.buildingLayer],
+                layers: [new AMap.TileLayer(), this.buildingLayer],
             });
             this.map.setMapStyle('amap://styles/fresh');
 
             this.map.addControl(new AMap.Scale());
-            // this.setBuildStyle();
             this.searchAddress();
 
-            // this.setBuildModel();
-            // this.setTruckModel();
             this.setLine();
             this.setMark();
-            // this.setTruck();
-            // this.setControl()
         },
         setControl() {
             // 3D效果和下面的控件 需要1.4.0以上的版本
@@ -222,7 +218,6 @@ export default {
                 const text = new AMap.Text({
                     position: new AMap.LngLat(...item.position),
                     text: item.address,
-                    // offset: new AMap.Pixel(35, -15),
                     map: this.map,
                     anchor: 'bottom-left',
                     style: {
@@ -230,34 +225,27 @@ export default {
                         'border-color': 'red',
                         'font-size': '12px',
                         padding: '10px',
-                        // width:'100px',
                     },
                 });
-                text.on('click', (e) => {
-                    console.log(e);
+                text.on('click', () => {
                     // 清除地图覆盖物
                     this.map.clearMap();
                     //动态设置地图中心点和展示层级
                     this.map.setZoomAndCenter(19, [102.70571, 24.98466]);
                     this.map.setFeatures(['road', 'point', 'bg']);
                     this.setTruck();
-                    this.setFire()
-                    // 动态设置俯仰度
-                    // this.map.setPitch(80);
-                    // this.map.setRotation(-15);
+                    this.setFire();
+                    this.setFireInfo();
                 });
-                m.on('click', (e) => {
-                    console.log(e);
+                m.on('click', () => {
                     // 清除地图覆盖物
                     this.map.clearMap();
                     //动态设置地图中心点和展示层级
                     this.map.setZoomAndCenter(19, [102.70571, 24.98466]);
                     this.map.setFeatures(['road', 'point', 'bg']);
                     this.setTruck();
-                    this.setFire()
-                    // 动态设置俯仰度
-                    // this.map.setPitch(80);
-                    // this.map.setRotation(-15);
+                    this.setFire();
+                    this.setFireInfo();
                 });
                 return m;
             });
@@ -265,7 +253,7 @@ export default {
             // 将 markers 添加到地图
             this.map.add(markers);
         },
-        setTruckModel() {
+        setTruckModel({ position }) {
             var modelName = 'building';
             var objLoader = new OBJLoader2();
             var callbackOnLoad = (event) => {
@@ -322,9 +310,9 @@ export default {
                     mesh.DEPTH_TEST = material.depthTest;
                     // mesh.backOrFront = 'both'
                     mesh.transparent = opacity < 1;
-                    mesh.scale(3, 3, 3);
-                    mesh.rotateZ(48);
-                    mesh.position(new AMap.LngLat(102.705485, 24.983756));
+                    mesh.scale(2, 2, 2);
+                    mesh.rotateZ(190);
+                    mesh.position(new AMap.LngLat(...position));
                     object3Dlayer.add(mesh);
                 }
                 this.map.add(object3Dlayer);
@@ -371,10 +359,11 @@ export default {
                     var material = meshes[i].material[0] || meshes[i].material;
                     // debugger
                     // if (material.map)  建筑瓷砖
-                    mesh.textures.push(
+                    mesh.textures
+                        .push('/static/model/3d66Model-1269225-files-10.jpeg')
+                        // .push('/static/model/b.jpeg')
                         // 'https://a.amap.com/jsapi_demos/static/demo-center/model/1519/1519.bmp'
-                        '/static/model/3d66Model-1198623-files-252.jpg'
-                    );
+                        ;
 
                     c = material.color;
                     opacity = material.opacity;
@@ -407,9 +396,9 @@ export default {
                     mesh.DEPTH_TEST = material.depthTest;
                     // mesh.backOrFront = 'both'
                     mesh.transparent = opacity < 1;
-                    mesh.scale(1, 1, 1);
-                    mesh.rotateZ(-48);
-                    mesh.position(new AMap.LngLat(102.705485, 24.983756));
+                    mesh.scale(2, 2, 2);
+                    mesh.rotateZ(278);
+                    mesh.position(new AMap.LngLat(102.70571, 24.984491));
                     object3Dlayer.add(mesh);
                 }
                 this.map.add(object3Dlayer);
@@ -451,18 +440,56 @@ export default {
                 });
             });
         },
+        setFireInfo() {
+            //构建信息窗体中显示的内容
+            const info = [];
+            info.push(
+                '<div style="padding:10px 0px 0px 0px;color:red;"><h2 style="color:red">着火信息</h2>'
+            );
+            info.push('<p>建筑高度220米</p>');
+            info.push('<p>建筑总层数73</p>');
+            info.push('<p>标准层面积1500平方米</p>');
+            info.push('<p>群楼层面积3400平方米</p>');
+            info.push('<p>标准层数69层</p>');
+            info.push('<p>群楼层数4层</p>');
+            info.push(
+                "<h4 style='color:black'>点击火焰查看三维地图</h4></div></div>"
+            );
+
+            const infoWindow = new AMap.InfoWindow({
+                content: info.join(''), //使用默认信息窗体框样式，显示信息内容
+                anchor: 'bottom-left',
+            });
+
+            infoWindow.open(this.map, [102.705772, 24.984711]);
+        },
         setFire() {
             const icon = new AMap.Icon({
                 size: new AMap.Size(40, 40),
                 image: '/static/fire.gif',
                 imageSize: new AMap.Size(40, 40),
             });
-            new AMap.Marker({
+            const fire = new AMap.Marker({
                 map: this.map,
                 position: [102.70571, 24.98466],
                 icon: icon,
-                // offset: new AMap.Pixel(0, -5),
-                // angle: item.angle,
+                offset: new AMap.Pixel(-20, -35),
+            });
+
+            fire.on('click', () => {
+                this.map.clearMap();
+                //动态设置地图中心点和展示层级
+                this.map.setZoomAndCenter(17, [102.706219, 24.987877]);
+                this.map.setFeatures(['road', 'point', 'bg', 'building']);
+                // 动态设置俯仰度
+                this.map.setPitch(70);
+                this.map.setRotation(-15);
+                this.setBuildModel();
+                this.trucks.map((item) => {
+                    this.setTruckModel(item);
+                });
+                this.setControl();
+                this.setBuildStyle();
             });
         },
         searchAddress() {
