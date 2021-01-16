@@ -359,11 +359,9 @@ export default {
                     var material = meshes[i].material[0] || meshes[i].material;
                     // debugger
                     // if (material.map)  建筑瓷砖
-                    mesh.textures
-                        .push('/static/model/3d66Model-1269225-files-10.jpeg')
-                        // .push('/static/model/b.jpeg')
-                        // 'https://a.amap.com/jsapi_demos/static/demo-center/model/1519/1519.bmp'
-                        ;
+                    mesh.textures.push(
+                        'https://a.amap.com/jsapi_demos/static/demo-center/model/1519/1519.bmp'
+                    );
 
                     c = material.color;
                     opacity = material.opacity;
@@ -407,8 +405,7 @@ export default {
                 objLoader.setModelName(modelName);
                 objLoader.addMaterials(materials);
                 objLoader.load(
-                    // 'https://a.amap.com/jsapi_demos/static/demo-center/model/1519/1519.obj',
-                    '/static/model/b.obj',
+                    'https://a.amap.com/jsapi_demos/static/demo-center/model/1519/1519.obj',
                     callbackOnLoad,
                     null,
                     null,
@@ -417,8 +414,7 @@ export default {
                 );
             };
             objLoader.load(
-                // 'https://a.amap.com/jsapi_demos/static/demo-center/model/1519/1519.mtl',
-                '/static/model/b.mtl',
+                'https://a.amap.com/jsapi_demos/static/demo-center/model/1519/1519.mtl',
                 // null,
                 onLoadMtl
             );
