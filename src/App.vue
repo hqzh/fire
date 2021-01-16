@@ -27,7 +27,6 @@ export default {
             map: null,
             buildingLayer: null,
             placeSearch: null,
-            marker: null,
             options: {
                 hideWithoutStyle: false, //是否隐藏设定区域外的楼块
                 areas: [
@@ -58,15 +57,61 @@ export default {
                 ],
             },
             markers: [
-                [102.70571, 24.98466],
-                [103.258265, 25.543077],
-                [103.186049, 26.075335],
-                [103.037529, 25.32561],
-                [102.497359, 25.217404],
-                [102.455077, 24.946699],
-                [102.592422, 24.671623],
-                [103.151339, 24.921936],
-                [103.28623, 24.779472],
+                {
+                    position: [102.70571, 24.98466],
+                    address: '昆明市西山区前兴路东大商园内',
+                },
+                {
+                    position: [103.2584, 25.54295],
+                    address: '昆明市寻甸回族彝族自治县大花桥农贸市场',
+                },
+                {
+                    position: [103.183401, 26.073369],
+                    address: '昆明市东川区体育场南50米(209省道西)',
+                },
+                {
+                    position: [103.038382, 25.322492],
+                    address:
+                        '昆明市嵩明县嵩明公路管理段2号院东南乔华家居建材城',
+                },
+                {
+                    position: [102.501071, 25.21075],
+                    address: '昆明市富民县永南大街佳逸小区',
+                },
+                {
+                    position: [102.366938, 24.93828],
+                    address: '昆明市嵩明县天创路8附近云天化集团',
+                },
+                {
+                    position: [102.596094, 24.674432],
+                    address: '昆明市晋宁区富昆路昆明圣玛莉医院东侧',
+                },
+                {
+                    position: [103.152573, 24.920524],
+                    address: '昆明市宜良县迎宾路137号永佳KTV',
+                },
+                {
+                    position: [103.280753, 24.778896],
+                    address:
+                        '昆明市石林彝族自治县昌乐路东100米石林生态工业集中区金恒公租房',
+                },
+            ],
+            trucks: [
+                {
+                    position: [102.705418, 24.984355],
+                    angle: 280,
+                    title: '我是一号车',
+                },
+                {
+                    position: [102.705257, 24.98399],
+                    angle: 280,
+                    title: '我是二号车',
+                },
+                {
+                    position: [102.705565, 24.984258],
+                    angle: 280,
+                    title: '我是三号车',
+                },
             ],
         };
     },
@@ -79,7 +124,8 @@ export default {
 
             new AMap.Polygon({
                 bubble: true,
-                fillOpacity: 0.4,
+                fillColor: 'green',
+                fillOpacity: 0.2,
                 strokeWeight: 1,
                 path: this.options.areas[0].path,
                 map: this.map,
@@ -109,7 +155,7 @@ export default {
                 zoom: 9,
                 // // 地图俯仰角度，有效范围 0 度- 83 度
                 // pitch: 80,
-                rotation: -15,
+                // rotation: -15,
                 viewMode: '3D', //开启3D视图,默认为关闭
                 buildingAnimation: true, //楼块出现是否带动画
                 // zooms 表示地图显示的缩放级别范围。在PC上，默认为[3,18]，取值范围[3-18]；在移动设备上，默认为[3,19],取值范围[3-19] 。
@@ -119,6 +165,14 @@ export default {
                 layers: [new AMap.TileLayer(), this.buildingLayer],
             });
             this.map.setMapStyle('amap://styles/fresh');
+
+            this.map.addControl(new AMap.Scale());
+            this.searchAddress();
+
+            this.setLine();
+            this.setMark();
+        },
+        setControl() {
             // 3D效果和下面的控件 需要1.4.0以上的版本
             this.map.addControl(
                 new AMap.ControlBar({
@@ -130,10 +184,6 @@ export default {
                     },
                 })
             );
-            this.map.addControl(new AMap.Scale());
-            this.setBuildStyle();
-            this.searchAddress();
-
             // 如果调不好光照的话，后面取消，让建筑模型通红
             // 设置地图的环境光源(color,intensity)
             // color用来描述光照的颜色，为一个三个元素的数组，每个元素代表RGB的三个分量，每个分量的取值范围[0,1]；
@@ -151,32 +201,51 @@ export default {
                 [1, 1, 1],
                 1
             );
-            this.setBuildModel();
-            this.setTruckModel();
-            this.setLine();
-            this.setMark();
-            this.setTruck();
         },
         setMark() {
             var icon = new AMap.Icon({
-                size: new AMap.Size(62, 47),
-                image: '/static/fire.gif',
-                imageSize: new AMap.Size(62, 47),
+                size: new AMap.Size(20, 20),
+                image: '/static/fire.png',
+                imageSize: new AMap.Size(20, 20),
             });
+
             const markers = this.markers.map((item) => {
                 const m = new AMap.Marker({
-                    position: new AMap.LngLat(...item),
+                    position: new AMap.LngLat(...item.position),
                     icon: icon,
-                    offset: new AMap.Pixel(-30, -23),
+                    offset: new AMap.Pixel(-10, 5),
                 });
-                m.on('click', (e) => {
-                    console.log(e);
+                const text = new AMap.Text({
+                    position: new AMap.LngLat(...item.position),
+                    text: item.address,
+                    map: this.map,
+                    anchor: 'bottom-left',
+                    style: {
+                        color: 'red',
+                        'border-color': 'red',
+                        'font-size': '12px',
+                        padding: '10px',
+                    },
+                });
+                text.on('click', () => {
                     // 清除地图覆盖物
                     this.map.clearMap();
                     //动态设置地图中心点和展示层级
-                    this.map.setZoomAndCenter(18, [102.70571, 24.98466]);
-                    // 动态设置俯仰度
-                    this.map.setPitch(80);
+                    this.map.setZoomAndCenter(19, [102.70571, 24.98466]);
+                    this.map.setFeatures(['road', 'point', 'bg']);
+                    this.setTruck();
+                    this.setFire();
+                    this.setFireInfo();
+                });
+                m.on('click', () => {
+                    // 清除地图覆盖物
+                    this.map.clearMap();
+                    //动态设置地图中心点和展示层级
+                    this.map.setZoomAndCenter(19, [102.70571, 24.98466]);
+                    this.map.setFeatures(['road', 'point', 'bg']);
+                    this.setTruck();
+                    this.setFire();
+                    this.setFireInfo();
                 });
                 return m;
             });
@@ -184,7 +253,7 @@ export default {
             // 将 markers 添加到地图
             this.map.add(markers);
         },
-        setTruckModel() {
+        setTruckModel({ position }) {
             var modelName = 'building';
             var objLoader = new OBJLoader2();
             var callbackOnLoad = (event) => {
@@ -208,7 +277,7 @@ export default {
                     var material = meshes[i].material[0] || meshes[i].material;
                     // debugger
                     // if (material.map)  建筑瓷砖
-                    mesh.textures.push('/static/model/bus.jpg');
+                    mesh.textures.push('/static/model/fire.png');
 
                     c = material.color;
                     opacity = material.opacity;
@@ -241,9 +310,9 @@ export default {
                     mesh.DEPTH_TEST = material.depthTest;
                     // mesh.backOrFront = 'both'
                     mesh.transparent = opacity < 1;
-                    mesh.scale(6, 6, 6);
-                    mesh.rotateZ(-48);
-                    mesh.position(new AMap.LngLat(102.705485,24.983756));
+                    mesh.scale(2, 2, 2);
+                    mesh.rotateZ(190);
+                    mesh.position(new AMap.LngLat(...position));
                     object3Dlayer.add(mesh);
                 }
                 this.map.add(object3Dlayer);
@@ -252,7 +321,7 @@ export default {
                 objLoader.setModelName(modelName);
                 objLoader.addMaterials(materials);
                 objLoader.load(
-                    '/static/model/bus.obj',
+                    '/static/model/fire.obj',
                     callbackOnLoad,
                     null,
                     null,
@@ -261,7 +330,7 @@ export default {
                 );
             };
             objLoader.load(
-                '/static/model/bus.mtl',
+                '/static/model/fire.mtl',
                 // null,
                 onLoadMtl
             );
@@ -325,9 +394,9 @@ export default {
                     mesh.DEPTH_TEST = material.depthTest;
                     // mesh.backOrFront = 'both'
                     mesh.transparent = opacity < 1;
-                    mesh.scale(6, 6, 6);
-                    mesh.rotateZ(-48);
-                    mesh.position(new AMap.LngLat(102.705747, 24.984676));
+                    mesh.scale(2, 2, 2);
+                    mesh.rotateZ(278);
+                    mesh.position(new AMap.LngLat(102.70571, 24.984491));
                     object3Dlayer.add(mesh);
                 }
                 this.map.add(object3Dlayer);
@@ -352,19 +421,71 @@ export default {
         },
         setTruck() {
             const icon = new AMap.Icon({
-                size: new AMap.Size(48, 20),
+                size: new AMap.Size(24, 10),
                 image: '/static/truck.png',
-                imageSize: new AMap.Size(48, 20),
+                imageSize: new AMap.Size(24, 10),
             });
-            this.markers.map((position) => {
-                this.marker = new AMap.Marker({
+            this.trucks.map((item) => {
+                new AMap.Marker({
                     map: this.map,
-                    position,
+                    position: item.position,
                     icon: icon,
-                    offset: new AMap.Pixel(-20, 43),
-                    autoRotation: true,
-                    angle: Math.floor(Math.random() * 100),
+                    offset: new AMap.Pixel(0, -5),
+                    angle: item.angle,
+                    title: item.title,
                 });
+            });
+        },
+        setFireInfo() {
+            //构建信息窗体中显示的内容
+            const info = [];
+            info.push(
+                '<div style="padding:10px 0px 0px 0px;color:red;"><h2 style="color:red">着火信息</h2>'
+            );
+            info.push('<p>建筑高度220米</p>');
+            info.push('<p>建筑总层数73</p>');
+            info.push('<p>标准层面积1500平方米</p>');
+            info.push('<p>群楼层面积3400平方米</p>');
+            info.push('<p>标准层数69层</p>');
+            info.push('<p>群楼层数4层</p>');
+            info.push(
+                "<h4 style='color:black'>点击火焰查看三维地图</h4></div></div>"
+            );
+
+            const infoWindow = new AMap.InfoWindow({
+                content: info.join(''), //使用默认信息窗体框样式，显示信息内容
+                anchor: 'bottom-left',
+            });
+
+            infoWindow.open(this.map, [102.705772, 24.984711]);
+        },
+        setFire() {
+            const icon = new AMap.Icon({
+                size: new AMap.Size(40, 40),
+                image: '/static/fire.gif',
+                imageSize: new AMap.Size(40, 40),
+            });
+            const fire = new AMap.Marker({
+                map: this.map,
+                position: [102.70571, 24.98466],
+                icon: icon,
+                offset: new AMap.Pixel(-20, -35),
+            });
+
+            fire.on('click', () => {
+                this.map.clearMap();
+                //动态设置地图中心点和展示层级
+                this.map.setZoomAndCenter(17, [102.706219, 24.987877]);
+                this.map.setFeatures(['road', 'point', 'bg', 'building']);
+                // 动态设置俯仰度
+                this.map.setPitch(70);
+                this.map.setRotation(-15);
+                this.setBuildModel();
+                this.trucks.map((item) => {
+                    this.setTruckModel(item);
+                });
+                this.setControl();
+                this.setBuildStyle();
             });
         },
         searchAddress() {
