@@ -271,15 +271,10 @@
 						//底部一圈
 						// debugger
 
-						var c, opacity;
-
 						var material = meshes[i].material[0] || meshes[i].material;
 						// debugger
 						// if (material.map)  建筑瓷砖
 						mesh.textures.push("/static/model/fire.png");
-
-						c = material.color;
-						opacity = material.opacity;
 
 						// debugger
 						for (var j = 0; j < vectexCount; j += 1) {
@@ -303,12 +298,9 @@
 									1 - vecticesUV2.array[j * 2 + 1]
 								);
 							}
-							geometry.vertexColors.push(c.r, c.g, c.b, opacity);
 						}
 						// debugger
 						mesh.DEPTH_TEST = material.depthTest;
-						// mesh.backOrFront = 'both'
-						mesh.transparent = opacity < 1;
 						mesh.scale(2, 2, 2);
 						mesh.rotateZ(190);
 						mesh.position(new AMap.LngLat(...position));
