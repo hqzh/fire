@@ -1,5 +1,5 @@
 # 3ds Max Wavefront OBJ Exporter v0.97b - (c)2007 guruware
-# 创建的文件:12.01.2021 10:36:17
+# 锟斤拷锟斤拷锟斤拷锟侥硷拷:12.01.2021 10:36:17
 
 newmtl Standardmaterial
 	Ns 10.0000
@@ -12,5 +12,5 @@ newmtl Standardmaterial
 	Kd 0.5880 0.5880 0.5880
 	Ks 0.0000 0.0000 0.0000
 	Ke 0.0000 0.0000 0.0000
-	map_Ka ..\1.12新模型/1.12新模型\3d66Model-1097107-files-5.png
-	map_Kd ..\1.12新模型/1.12新模型\3d66Model-1097107-files-5.png
+	map_Ka ..\1.12锟斤拷模锟斤拷/1.12锟斤拷模锟斤拷\3d66Model-1097107-files-5.png
+	map_Kd ..\1.12锟斤拷模锟斤拷/1.12锟斤拷模锟斤拷\3d66Model-1097107-files-5.png
