@@ -188,18 +188,14 @@
 				// color用来描述光照的颜色，为一个三个元素的数组，每个元素代表RGB的三个分量，每个分量的取值范围[0,1]；
 				// intensity用来描述光照强度，取值范围[0,1]；
 
-				this.map.AmbientLight = new AMap.Lights.AmbientLight([1, 1, 1], 1);
+				this.map.AmbientLight = new AMap.Lights.AmbientLight([1, 1, 1], 0.6);
 				// 设置地图的平行光照(direction,color,intensity)
 				// direction用来描述光的照射方向，为一个三个元素的数组，分别代表方向的xyz分量。direction为相对于地图平面的方向，x 正方向朝东，y 正方向朝南，z 正方向朝下
 				// color用来描述光照的颜色，为一个三个元素的数组，每个元素代表RGB的三个分量，每个分量的取值范围[0,1]；
 				// intensity用来描述光照强度，取值范围[0,1]；
 				// 如下: 描述了一个从正南方斜向下照射的一道平行光
 				// var dir = new M.Lights.DirectionLight([0, -1, 1],[1, 1, 1],0.1)
-				this.map.DirectionLight = new AMap.Lights.DirectionLight(
-					[1, 0, -0.5],
-					[1, 1, 1],
-					1
-				);
+				this.map.DirectionLight = new AMap.Lights.DirectionLight([-6,-2,14],[1,1,1],0.4);
 			},
 			setMark() {
 				var icon = new AMap.Icon({
