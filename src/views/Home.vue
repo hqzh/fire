@@ -346,7 +346,7 @@
 						var material = meshes[i].material[0] || meshes[i].material;
 						// debugger
 						// if (material.map)  建筑瓷砖
-						mesh.textures.push("/static/model/15119.bmp");
+						mesh.textures.push("/static/model/130.bmp");
 
 						c = material.color;
 						opacity = material.opacity;
