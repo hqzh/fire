@@ -43,6 +43,11 @@
             <span>{{ item.text }}</span>
             <icon-font type="iconadd" class="icon-fire"></icon-font>
           </div>
+          <div class="handle">
+            <a-button type="primary" @click="handleSave"> 保存 </a-button>
+            <a-button type="danger" @click="handleClear"> 清空 </a-button>
+            <a-button type="danger" @click="visible = false"> 关闭 </a-button>
+          </div>
         </div>
         <div id="x6-container"></div>
       </div>
@@ -52,9 +57,10 @@
 
 <script>
 import { Graph } from "@antv/x6";
-import { Icon } from "ant-design-vue";
+import { Icon, Message } from "ant-design-vue";
+
 const IconFont = Icon.createFromIconfontCN({
-  scriptUrl: "//at.alicdn.com/t/font_2358004_i42xq7epmgk.js",
+  scriptUrl: "//at.alicdn.com/t/font_2358004_pxi062wq21c.js",
 });
 Graph.registerNode(
   "fireman",
@@ -120,10 +126,17 @@ export default {
       ],
     };
   },
-  // mounted() {
-
-  // },
   methods: {
+    handleClear() {
+      this.graph.clearCells();
+      Message.success("清空完成！");
+      // localStorage.clear()
+    },
+    handleSave() {
+      localStorage.setItem("x6", JSON.stringify(this.graph.toJSON()));
+      this.visible = false;
+      Message.success("保存成功！");
+    },
     async show() {
       this.visible = true;
       await this.$nextTick();
@@ -150,9 +163,12 @@ export default {
           view.cell.remove();
         }
       });
+      const serveData = JSON.parse(localStorage.getItem("x6"));
+      if (serveData && serveData.cells.length) {
+        this.graph.fromJSON(serveData);
+      }
     },
     handleClick(icon) {
-      console.log(icon);
       switch (icon) {
         case "iconfireman":
           this.graph.addNode({
@@ -209,6 +225,14 @@ export default {
 #x6-menu {
   width: 240px;
   padding-top: 24px;
+  position: relative;
+}
+.handle {
+  display: flex;
+  justify-content: space-around;
+  position: absolute;
+  bottom: 24px;
+  width: 100%;
 }
 #x6-container {
   flex: auto;
@@ -222,6 +246,8 @@ export default {
   padding: 16px;
   font-size: 24px;
   font-weight: bold;
-  justify-content: space-between;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
 }
 </style>
