@@ -25,7 +25,7 @@
       placement="right"
       width="100vw"
       :drawerStyle="{ display: 'flex', flexDirection: 'column' }"
-      :bodyStyle="{ flex: 'auto', height: 0 }"
+      :bodyStyle="{ flex: 'auto', height: 0, paddingLeft: 0 }"
       :mark="false"
       :visible="visible"
       @close="visible = false"
@@ -33,16 +33,20 @@
       <div id="x6">
         <!-- 战斗人员   消防栓  消防通道 -->
         <div id="x6-menu">
-          <div
-            class="menu-item"
-            v-for="item in list"
-            :key="item.icon"
-            @click="handleClick(item.icon)"
-          >
-            <icon-font :type="item.icon" class="icon-fire" />
-            <span>{{ item.text }}</span>
-            <icon-font type="iconadd" class="icon-fire"></icon-font>
-          </div>
+          <a-card title="要素" :bordered="false" :bodyStyle="{ padding: 0 }">
+            <div
+              class="menu-item"
+              v-for="item in list"
+              :key="item.icon"
+              @click="handleClick(item.icon)"
+            >
+              <icon-font :type="item.icon" class="icon-fire" />
+              <span>{{ item.text }}</span>
+              <icon-font type="iconadd" class="icon-add"></icon-font>
+            </div>
+          </a-card>
+          <a-card title="方案" :bordered="false"> 12345 </a-card>
+
           <div class="handle">
             <a-button type="primary" @click="handleSave"> 保存 </a-button>
             <a-button type="danger" @click="handleClear"> 清空 </a-button>
@@ -60,7 +64,7 @@ import { Graph } from "@antv/x6";
 import { Icon, Message } from "ant-design-vue";
 
 const IconFont = Icon.createFromIconfontCN({
-  scriptUrl: "//at.alicdn.com/t/font_2358004_pxi062wq21c.js",
+  scriptUrl: "//at.alicdn.com/t/font_2358004_3pyigrolcsa.js",
 });
 Graph.registerNode(
   "fireman",
@@ -122,6 +126,18 @@ export default {
         {
           text: "安全通道",
           icon: "iconexit",
+        },
+        {
+          text: "着火点",
+          icon: "iconfire",
+        },
+        {
+          text: "进攻线路",
+          icon: "iconplan",
+        },
+        {
+          text: "供水线路",
+          icon: "iconflow",
         },
       ],
     };
@@ -224,7 +240,6 @@ export default {
 }
 #x6-menu {
   width: 240px;
-  padding-top: 24px;
   position: relative;
 }
 .handle {
@@ -240,6 +255,9 @@ export default {
 }
 .icon-fire {
   font-size: 40px;
+}
+.icon-add{
+  font-size: 24px;
 }
 .menu-item {
   cursor: pointer;
