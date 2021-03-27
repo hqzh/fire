@@ -591,6 +591,7 @@ export default {
                 });
                 this.setControl();
                 this.setBuildStyle();
+                this[this.scheme](this.scheme);
             });
         },
         searchAddress() {
