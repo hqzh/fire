@@ -94,6 +94,7 @@
 <script>
 import { Graph } from '@antv/x6';
 import { Icon, Message } from 'ant-design-vue';
+const initData = require('./init.json');
 
 const IconFont = Icon.createFromIconfontCN({
     scriptUrl: '//at.alicdn.com/t/font_2358004_3pyigrolcsa.js',
@@ -164,8 +165,8 @@ export default {
     },
     data() {
         return {
-            hold: false,
-            water: false,
+            hold: true,
+            water: true,
             bodyStyle: { padding: 0 },
             visible: false,
             graph: null,
@@ -247,7 +248,8 @@ export default {
                     },
                 ]);
             });
-            const serveData = JSON.parse(localStorage.getItem('x6'));
+            const serveData =
+                JSON.parse(localStorage.getItem('x6')) || initData;
             if (serveData && serveData.cells.length) {
                 this.graph.fromJSON(serveData);
             }
