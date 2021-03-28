@@ -58,15 +58,33 @@
                         :bodyStyle="bodyStyle"
                     >
                         <div class="scheme-wrap">
-                            <a-checkbox @change="onChange" v-model="hold">
-                                <a-button type="link" @click="hold = !hold">
+                            <a-checkbox
+                                @change="onChange('hold', 'red')"
+                                v-model="hold"
+                            >
+                                <a-button
+                                    type="link"
+                                    @click="
+                                        hold = !hold;
+                                        onChange('hold', 'red');
+                                    "
+                                >
                                     进攻路线方案
                                 </a-button>
                             </a-checkbox>
                         </div>
                         <div class="scheme-wrap">
-                            <a-checkbox @change="onChange" v-model="water">
-                                <a-button type="link" @click="water = !water">
+                            <a-checkbox
+                                @change="onChange('water', 'aqua')"
+                                v-model="water"
+                            >
+                                <a-button
+                                    type="link"
+                                    @click="
+                                        water = !water;
+                                        onChange('water', 'aqua');
+                                    "
+                                >
                                     供水方案
                                 </a-button>
                             </a-checkbox>
@@ -74,7 +92,7 @@
                     </a-card>
 
                     <div class="handle">
-                        <a-button type="primary" @click="handleSave">
+                        <a-button type="primary" @click="handleSave('close')">
                             保存
                         </a-button>
                         <a-button type="danger" @click="handleClear">
@@ -94,7 +112,7 @@
 <script>
 import { Graph } from '@antv/x6';
 import { Icon, Message } from 'ant-design-vue';
-const initData = require('./init.json');
+import { initData, hold, water } from './data.js';
 
 const IconFont = Icon.createFromIconfontCN({
     scriptUrl: '//at.alicdn.com/t/font_2358004_3pyigrolcsa.js',
@@ -199,16 +217,37 @@ export default {
         };
     },
     methods: {
-        onChange() {},
+        onChange(key, color) {
+            this.handleSave();
+            const serveData = JSON.parse(localStorage.getItem('x6'));
+            if (serveData && serveData.cells.length) {
+                this.graph.fromJSON(serveData);
+            }
+            if (this[key]) {
+                serveData.cells = [...serveData.cells,...(key === 'hold' ? hold : water)]
+                this.graph.fromJSON(
+                    serveData.cells
+                );
+                console.log(serveData);
+            } else {
+                this.graph.fromJSON({
+                    cells: serveData.cells.filter(
+                        (item) => item?.attrs?.line?.stroke !== color
+                    ),
+                });
+            }
+        },
         handleClear() {
             this.graph.clearCells();
             Message.success('清空完成！');
             // localStorage.clear()
         },
-        handleSave() {
+        handleSave(close) {
             localStorage.setItem('x6', JSON.stringify(this.graph.toJSON()));
-            this.visible = false;
-            Message.success('保存成功！');
+            if (close) {
+                this.visible = false;
+                Message.success('保存成功！');
+            }
         },
         async show() {
             this.visible = true;
