@@ -10,7 +10,6 @@
             :visible="true"
             :mask="false"
             :maskClosable="false"
-            :bodyStyle="{ padding: '8px' }"
             wrapClassName="wrap-bottom-drawer"
         >
             <!-- 搜索框 -->
@@ -164,12 +163,10 @@ export default {
     },
     methods: {
         touchDown() {
-            console.log("xia");
             this.height = 50;
         },
         touchUp() {
             this.height = 256;
-            console.log("上");
         },
         handleChange(value) {
             this[value](value);
@@ -625,7 +622,8 @@ export default {
                 map: this.map, // 展现结果的地图实例
                 panel: "panel", // 结果列表将在此容器中进行展示。
                 autoFitView: true, // 是否自动调整地图视野使绘制的 Marker点都处于视口的可见范围
-                renderStyle: "newpc",
+                renderStyle: "default",
+                extensions:'base',
                 type:
                     "汽车服务|汽车销售|汽车维修|摩托车服务|餐饮服务|购物服务|生活服务|体育休闲服务|医疗保健服务|住宿服务|风景名胜|商务住宅|政府机构及社会团体|科教文化服务|交通设施服务|金融保险服务|公司企业|道路附属设施|地名地址信息|公共设施",
             });
@@ -684,7 +682,27 @@ export default {
         overflow-y: auto;
         margin-top: 8px;
     }
-    #search {
+    .ant-drawer-content-wrapper,
+    .ant-drawer-content,
+    .ant-drawer-wrapper-body,
+    .ant-drawer-body {
+        border-radius: 10px;
+    }
+    .ant-drawer-body {
+        padding: 10px;
+        position: relative;
+    }
+    .ant-drawer-body::before {
+        position: absolute;
+        display: block;
+        content: "";
+        width: 24px;
+        height: 4px;
+        background: #666;
+        top: 2px;
+        left: 50%;
+        transform: translate(-50%);
+        border-radius: 4px;
     }
 }
 </style>
