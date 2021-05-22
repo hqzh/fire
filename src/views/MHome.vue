@@ -15,14 +15,28 @@
             <!-- 搜索框 -->
             <div id="search" v-if="!visible">
                 <a-input-search
+                    autocomplete="off"
+                    id="input-text"
                     v-model="input"
                     placeholder="请输入关键字"
-                    @search="onSearch"
-                    @change="onSearch"
+                    @focus="touchUp"
                 />
             </div>
-            <!-- 搜索结果列表容器 -->
-            <div id="panel"></div>
+            <!-- 历史搜索 -->
+            <div id="panel-history">
+                <div>查询历史</div>
+                <div>
+                    <div
+                        v-for="(item, index) in historySearch"
+                        :key="index"
+                        class="auto-item"
+                        @click="handleSearch(item.name)"
+                    >
+                        {{ item.name }}
+                        <span class="auto-item-span">{{ item.district }}</span>
+                    </div>
+                </div>
+            </div>
         </a-drawer>
         <div id="firehandle" v-if="visible">
             <a-select
@@ -53,19 +67,21 @@
 import AMap from "AMap";
 import { OBJLoader2 } from "three/examples/jsm/loaders/OBJLoader2";
 import BuildMark from "@/components/BuildMark.vue";
+const HISTORY_SEARCH = "HISTORY_SEARCH";
 
 export default {
     components: { BuildMark },
     data() {
         return {
-            height: 256, // 移动端底部抽屉高度
+            historySearch: [], //查询历史
+            height: 315, // 移动端底部抽屉高度
             visible: false,
             scheme: "fireFace",
             fireFaceRect: null,
             fitFaceRect: null,
             rescueFaceRectRight: null,
             rescueFaceRectBottom: null,
-            input: "大商园建材城办公大楼",
+            input: "",
             map: null,
             buildingLayer: null,
             placeSearch: null,
@@ -160,13 +176,15 @@ export default {
     },
     mounted() {
         this.init();
+        this.historySearch =
+            JSON.parse(localStorage.getItem(HISTORY_SEARCH)) || [];
     },
     methods: {
         touchDown() {
             this.height = 50;
         },
         touchUp() {
-            this.height = 256;
+            this.height = 315;
         },
         handleChange(value) {
             this[value](value);
@@ -363,7 +381,6 @@ export default {
         fireFace(value) {
             value && this.clearFace();
             this.visible = true;
-            this.placeSearch.render?.clearPanel();
             this.fireFaceRect = new AMap.Rectangle({
                 map: this.map,
                 bounds: new AMap.Bounds(
@@ -612,34 +629,29 @@ export default {
                 this[this.scheme](this.scheme);
             });
         },
-        searchAddress() {
-            //构造地点查询类
-            this.placeSearch = new AMap.PlaceSearch({
-                pageSize: 3, // 单页显示结果条数
-                pageIndex: 1, // 页码
-                // city: '昆明市',
-                // citylimit: true, // 只搜所在城市
-                map: this.map, // 展现结果的地图实例
-                panel: "panel", // 结果列表将在此容器中进行展示。
-                autoFitView: true, // 是否自动调整地图视野使绘制的 Marker点都处于视口的可见范围
-                renderStyle: "default",
-                extensions:'base',
-                type:
-                    "汽车服务|汽车销售|汽车维修|摩托车服务|餐饮服务|购物服务|生活服务|体育休闲服务|医疗保健服务|住宿服务|风景名胜|商务住宅|政府机构及社会团体|科教文化服务|交通设施服务|金融保险服务|公司企业|道路附属设施|地名地址信息|公共设施",
+        async searchAddress() {
+            await this.$nextTick();
+            const autocomplete = new AMap.Autocomplete({
+                // 使用联想输入的input的id
+                input: "input-text",
             });
-            // 添加列表点选监听事件
-            AMap.event.addListener(
-                this.placeSearch,
-                "selectChanged",
-                this.onSelect
-            );
+            this.placeSearch = new AMap.PlaceSearch({
+                map: this.map,
+            });
+            AMap.event.addListener(autocomplete, "select", (e) => {
+                const { district, name } = e.poi;
+                this.placeSearch.search(name);
+                const arr =
+                    JSON.parse(localStorage.getItem(HISTORY_SEARCH)) || [];
+                if (!arr.filter((item) => item.name === name).length) {
+                    arr.unshift({ name, district });
+                    localStorage.setItem(HISTORY_SEARCH, JSON.stringify(arr));
+                    this.historySearch = arr;
+                }
+            });
         },
-        onSearch() {
-            if (!this.input || this.input.trim().length === 0) {
-                this.placeSearch.render.clearPanel();
-                return;
-            }
-            this.placeSearch.search(this.input);
+        handleSearch(name) {
+            this.placeSearch.search(name);
         },
         setLine() {
             var object3Dlayer = new AMap.Object3DLayer({ zIndex: 1 });
@@ -665,28 +677,23 @@ export default {
                 object3Dlayer.add(wall);
             });
         },
-        onSelect(e) {
-            //这里获得点选地点的经纬度
-            let location = e.selected.data.location;
-            console.log("lng", location.lng);
-            console.log("lat", location.lat);
-            // Do Something
-        },
     },
 };
 </script>
 
 <style lang="less">
 .wrap-bottom-drawer {
-    #panel {
-        overflow-y: auto;
-        margin-top: 8px;
+    #panel-history {
+        overflow-y: hidden;
+        margin-top: 4px;
+        height: 259px;
     }
     .ant-drawer-content-wrapper,
     .ant-drawer-content,
     .ant-drawer-wrapper-body,
     .ant-drawer-body {
-        border-radius: 10px;
+        border-top-right-radius: 10px;
+        border-top-left-radius: 10px;
     }
     .ant-drawer-body {
         padding: 10px;
