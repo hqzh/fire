@@ -10,6 +10,7 @@
   "dependencies": {
     "@antv/x6": "^1.12.14",
     "ant-design-vue": "^1.2.4",
+    "compression-webpack-plugin": "6.1.1",
     "core-js": "^3.6.5",
     "three": "^0.124.0",
     "vue": "^2.6.11",
