@@ -21,7 +21,7 @@
 import { Graph } from "@antv/x6";
 import { Icon } from "ant-design-vue";
 const IconFont = Icon.createFromIconfontCN({
-    scriptUrl: "//at.alicdn.com/t/font_2358004_i42xq7epmgk.js",
+    scriptUrl: "//at.alicdn.com/t/font_2358004_nxyqshrf4k.js",
 });
 Graph.registerNode(
     "fireman",

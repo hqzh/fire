@@ -115,7 +115,7 @@ import { Icon, Message } from 'ant-design-vue';
 import { initData, hold, water } from './data.js';
 
 const IconFont = Icon.createFromIconfontCN({
-    scriptUrl: '//at.alicdn.com/t/font_2358004_3pyigrolcsa.js',
+    scriptUrl: '//at.alicdn.com/t/font_2358004_nxyqshrf4k.js',
 });
 Graph.registerNode(
     'fireman',

@@ -13,7 +13,7 @@
             wrapClassName="wrap-bottom-drawer"
         >
             <!-- 搜索框 -->
-            <div id="search" v-if="!visible">
+            <div id="search">
                 <a-input-search
                     autocomplete="off"
                     id="input-text"
@@ -22,8 +22,25 @@
                     @focus="touchUp"
                 />
             </div>
+            <div v-if="visible" class="fire-schemes">
+                <div
+                    v-for="item in schemes"
+                    :key="item"
+                    class="fire-scheme-item"
+                    @click="handleChange(item)"
+                >
+                    <div
+                        class="acheme-animation"
+                        :class="item === scheme ? 'acheme-active' : undefined"
+                    ></div>
+                    <icon-font :type="`icon${item}`" class="fire-scheme-icon" />
+                </div>
+                <div class="fire-scheme-item">
+                    <icon-font type="iconpush" class="fire-scheme-icon" />
+                </div>
+            </div>
             <!-- 历史搜索 -->
-            <div id="panel-history">
+            <div id="panel-history" v-else>
                 <div>查询历史</div>
                 <div>
                     <div
@@ -38,25 +55,6 @@
                 </div>
             </div>
         </a-drawer>
-        <div id="firehandle" v-if="visible">
-            <a-select
-                style="width: 100%"
-                @change="handleChange"
-                default-value="fireFace"
-                v-model="scheme"
-                placeholder="请选择停车方案"
-            >
-                <a-select-option value="fireFace">
-                    着火面停车方案
-                </a-select-option>
-                <a-select-option value="rescueFace">
-                    消防救援面方案
-                </a-select-option>
-                <a-select-option value="fitFace">
-                    适当空位停车方案
-                </a-select-option>
-            </a-select>
-        </div>
         <div style="display: none">
             <build-mark ref="infowindow"></build-mark>
         </div>
@@ -68,15 +66,21 @@ import AMap from "AMap";
 import { OBJLoader2 } from "three/examples/jsm/loaders/OBJLoader2";
 import BuildMark from "@/components/BuildMark.vue";
 const HISTORY_SEARCH = "HISTORY_SEARCH";
-
+import { Icon } from "ant-design-vue";
+const IconFont = Icon.createFromIconfontCN({
+    scriptUrl: "//at.alicdn.com/t/font_2358004_nxyqshrf4k.js",
+});
+const up = 315
+const down = 50
 export default {
-    components: { BuildMark },
+    components: { BuildMark, IconFont },
     data() {
         return {
             historySearch: [], //查询历史
-            height: 315, // 移动端底部抽屉高度
+            height: down, // 移动端底部抽屉高度
             visible: false,
             scheme: "fireFace",
+            schemes: ["fireFace", "rescueFace", "fitFace"],
             fireFaceRect: null,
             fitFaceRect: null,
             rescueFaceRectRight: null,
@@ -176,17 +180,18 @@ export default {
     },
     mounted() {
         this.init();
-        this.historySearch =
-            JSON.parse(localStorage.getItem(HISTORY_SEARCH)) || [];
     },
     methods: {
         touchDown() {
-            this.height = 50;
+            this.height = down;
         },
         touchUp() {
-            this.height = 315;
+            this.historySearch =
+                JSON.parse(localStorage.getItem(HISTORY_SEARCH)) || [];
+            this.height = up;
         },
         handleChange(value) {
+            this.scheme = value;
             this[value](value);
         },
         setBuildStyle() {
@@ -379,6 +384,7 @@ export default {
         },
         // 绘制初始化着火面停车方案
         fireFace(value) {
+            this.height = up
             value && this.clearFace();
             this.visible = true;
             this.fireFaceRect = new AMap.Rectangle({
@@ -533,7 +539,8 @@ export default {
 
                 this.map.add(object3Dlayer);
                 await this.$nextTick();
-                this.map.on("mousemove", (ev) => {
+                this.map.on("click", (ev) => {
+                    console.log(333);
                     var pixel = ev.pixel;
                     var px = new AMap.Pixel(pixel.x, pixel.y);
                     var obj =
@@ -627,6 +634,7 @@ export default {
                 this.setControl();
                 this.setBuildStyle();
                 this[this.scheme](this.scheme);
+                this.visible = false
             });
         },
         async searchAddress() {
@@ -688,6 +696,60 @@ export default {
         margin-top: 4px;
         height: 259px;
     }
+    .fire-schemes {
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        padding-top: 8px;
+        .fire-scheme-item {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        .fire-scheme-item:nth-child(1) {
+            background: #ad4e00;
+        }
+        .fire-scheme-item:nth-child(2) {
+            background: #2b4490;
+        }
+        .fire-scheme-item:nth-child(3) {
+            background: #fa541c;
+        }
+        .fire-scheme-item:nth-child(4) {
+            background: #e6f7ff;
+        }
+        .acheme-animation {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            opacity: 0;
+            border-radius: 50%;
+            background: #1890ff;
+        }
+        .acheme-active {
+            animation: mymove 5s infinite;
+        }
+        @keyframes mymove {
+            from {
+                transform: scale(0);
+                opacity: 1;
+            }
+            to {
+                transform: scale(1);
+                opacity: 0;
+            }
+        }
+
+        .fire-scheme-icon {
+            font-size: 32px;
+        }
+    }
     .ant-drawer-content-wrapper,
     .ant-drawer-content,
     .ant-drawer-wrapper-body,
@@ -722,14 +784,6 @@ export default {
     .wh;
     #map {
         .wh;
-    }
-
-    #firehandle {
-        position: absolute;
-        top: 80px;
-        left: 15px;
-        background: #fff;
-        width: 280px;
     }
 }
 </style>
