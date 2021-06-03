@@ -71,7 +71,7 @@
 <script>
 import AMap from "AMap";
 import { OBJLoader2 } from "three/examples/jsm/loaders/OBJLoader2";
-import BuildMark from "@/components/BuildMark.vue";
+import BuildMark from "@/components/MBuildMark.vue";
 const HISTORY_SEARCH = "HISTORY_SEARCH";
 import { Icon } from "ant-design-vue";
 const IconFont = Icon.createFromIconfontCN({
