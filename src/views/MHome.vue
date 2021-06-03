@@ -25,22 +25,29 @@
             <div v-if="visible" class="fire-schemes">
                 <div
                     v-for="item in schemes"
-                    :key="item"
+                    :key="item.value"
                     class="fire-scheme-item"
-                    @click="handleChange(item)"
+                    :style="{ background: item.color }"
+                    @click="handleChange(item.value)"
                 >
                     <div
                         class="acheme-animation"
-                        :class="item === scheme ? 'acheme-active' : undefined"
+                        :class="
+                            item.value === scheme ? 'acheme-active' : undefined
+                        "
                     ></div>
-                    <icon-font :type="`icon${item}`" class="fire-scheme-icon" />
+                    <icon-font
+                        :type="`icon${item.value}`"
+                        class="fire-scheme-icon"
+                    />
+                    <div class="fire-scheme-item-label">{{ item.label }}</div>
                 </div>
-                <div class="fire-scheme-item">
+                <div class="fire-scheme-item fire-scheme-item-add">
                     <icon-font type="iconpush" class="fire-scheme-icon" />
                 </div>
             </div>
             <!-- 历史搜索 -->
-            <div id="panel-history" v-else>
+            <div :class="!visible ? 'panel-history' : 'panel-history-scheme'">
                 <div>查询历史</div>
                 <div>
                     <div
@@ -70,8 +77,8 @@ import { Icon } from "ant-design-vue";
 const IconFont = Icon.createFromIconfontCN({
     scriptUrl: "//at.alicdn.com/t/font_2358004_nxyqshrf4k.js",
 });
-const up = 315
-const down = 50
+const up = 315;
+const down = 50;
 export default {
     components: { BuildMark, IconFont },
     data() {
@@ -80,7 +87,23 @@ export default {
             height: down, // 移动端底部抽屉高度
             visible: false,
             scheme: "fireFace",
-            schemes: ["fireFace", "rescueFace", "fitFace"],
+            schemes: [
+                {
+                    value: "fireFace",
+                    label: "着火面停车方案",
+                    color: "#ad4e00",
+                },
+                {
+                    value: "rescueFace",
+                    label: "消防救援面方案",
+                    color: "#2b4490",
+                },
+                {
+                    value: "fitFace",
+                    label: "适当空位停车方案",
+                    color: "#fa541c",
+                },
+            ],
             fireFaceRect: null,
             fitFaceRect: null,
             rescueFaceRectRight: null,
@@ -178,16 +201,25 @@ export default {
             toogle: true,
         };
     },
+    watch: {
+        height(n) {
+            if (n > down) {
+                this.getHistory();
+            }
+        },
+    },
     mounted() {
         this.init();
     },
     methods: {
+        getHistory() {
+            this.historySearch =
+                JSON.parse(localStorage.getItem(HISTORY_SEARCH)) || [];
+        },
         touchDown() {
             this.height = down;
         },
         touchUp() {
-            this.historySearch =
-                JSON.parse(localStorage.getItem(HISTORY_SEARCH)) || [];
             this.height = up;
         },
         handleChange(value) {
@@ -384,7 +416,7 @@ export default {
         },
         // 绘制初始化着火面停车方案
         fireFace(value) {
-            this.height = up
+            this.height = up;
             value && this.clearFace();
             this.visible = true;
             this.fireFaceRect = new AMap.Rectangle({
@@ -634,7 +666,7 @@ export default {
                 this.setControl();
                 this.setBuildStyle();
                 this[this.scheme](this.scheme);
-                this.visible = false
+                this.visible = false;
             });
         },
         async searchAddress() {
@@ -691,10 +723,15 @@ export default {
 
 <style lang="less">
 .wrap-bottom-drawer {
-    #panel-history {
+    .panel-history {
         overflow-y: hidden;
         margin-top: 4px;
         height: 259px;
+    }
+    .panel-history-scheme {
+        overflow-y: hidden;
+        margin-top: 32px;
+        height: 175px;
     }
     .fire-schemes {
         display: flex;
@@ -710,17 +747,17 @@ export default {
             justify-content: center;
             position: relative;
         }
-        .fire-scheme-item:nth-child(1) {
-            background: #ad4e00;
-        }
-        .fire-scheme-item:nth-child(2) {
-            background: #2b4490;
-        }
-        .fire-scheme-item:nth-child(3) {
-            background: #fa541c;
-        }
-        .fire-scheme-item:nth-child(4) {
+        .fire-scheme-item-add {
             background: #e6f7ff;
+        }
+        .fire-scheme-item-label {
+            position: absolute;
+            bottom: -24px;
+            left: -8px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: 80px;
         }
         .acheme-animation {
             position: absolute;
