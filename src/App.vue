@@ -11,12 +11,20 @@
 <script>
 export default {
     mounted() {
+        console.log(this.$route);
+        if (this.$route.path === '/m-about') {
+            return;
+        }
         if (this.isMobile()) {
             console.log("mobile");
-            this.$router.replace("/m").catch(err => {err});
+            this.$router.replace("/m").catch((err) => {
+                err;
+            });
         } else {
             console.log("pc");
-            this.$router.replace("/").catch(err => {err});
+            this.$router.replace("/").catch((err) => {
+                err;
+            });
         }
     },
     methods: {

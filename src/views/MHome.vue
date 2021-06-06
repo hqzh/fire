@@ -69,6 +69,7 @@
 </template>
 
 <script>
+import Vue from "vue";
 import AMap from "AMap";
 import { OBJLoader2 } from "three/examples/jsm/loaders/OBJLoader2";
 import BuildMark from "@/components/MBuildMark.vue";
@@ -572,7 +573,6 @@ export default {
                 this.map.add(object3Dlayer);
                 await this.$nextTick();
                 this.map.on("click", (ev) => {
-                    console.log(333);
                     var pixel = ev.pixel;
                     var px = new AMap.Pixel(pixel.x, pixel.y);
                     var obj =
@@ -626,9 +626,29 @@ export default {
                 });
             });
         },
-        setFireInfo({ offset, anchor, position }) {
+        async setFireInfo({ offset, anchor, position }) {
+            const _this = this;
+            var MyComponent = Vue.extend({
+                template:
+                    '<div style="padding-top:20px"><h3 style="position:absolute;top:2px">建筑信息</h3>' +
+                    '<div style="padding:4px 0;border-bottom:1px dashed gray">建筑高度：120米</div>' +
+                    '<div style="padding:4px 0;border-bottom:1px dashed gray">建筑总层数：37层</div>' +
+                    '<div style="padding:4px 0;border-bottom:1px dashed gray">标准层面积：1500平方米</div>' +
+                    '<div style="padding:4px 0;border-bottom:1px dashed gray">群楼层面积：3400平方米</div>' +
+                    '<div style="padding:4px 0;border-bottom:1px dashed gray">标准层数：69层</div>' +
+                    '<div style="padding:4px 0;border-bottom:1px dashed gray">群楼层数：4层</div>' +
+                    '<button class="ant-btn ant-btn-link" v-on:click="handleGo()">点击标记图纸</button></div></div>',
+                methods: {
+                    handleGo: function () {
+                        _this.$router.push("m-about");
+                    },
+                },
+            });
+            // 将新创建的子组件进行挂载
+            var component = new MyComponent().$mount();
+            await this.$nextTick()
             const infoWindow = new AMap.InfoWindow({
-                content: this.$refs.infowindow.$el,
+                content: component.$el, //使用默认信息窗体框样式，显示信息内容
                 anchor,
                 offset: new AMap.Pixel(...offset),
             });

@@ -2,6 +2,7 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Home from '../views/Home.vue'
 import MHome from '../views/MHome.vue'
+import MAbout from '../views/MAbout.vue'
 
 Vue.use(VueRouter)
 
@@ -15,6 +16,11 @@ const routes = [
     path: '/m',
     name: 'mHome',
     component: MHome
+  },
+  {
+    path: '/m-about',
+    name: 'mAbout',
+    component: MAbout
   },
   // {
   //   path: '/about',
