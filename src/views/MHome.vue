@@ -27,15 +27,10 @@
                     v-for="item in schemes"
                     :key="item.value"
                     class="fire-scheme-item"
+                    :class="item.value === scheme ? 'acheme-active' : undefined"
                     :style="{ background: item.color }"
                     @click="handleChange(item.value)"
                 >
-                    <div
-                        class="acheme-animation"
-                        :class="
-                            item.value === scheme ? 'acheme-active' : undefined
-                        "
-                    ></div>
                     <icon-font
                         :type="`icon${item.value}`"
                         class="fire-scheme-icon"
@@ -646,7 +641,7 @@ export default {
             });
             // 将新创建的子组件进行挂载
             var component = new MyComponent().$mount();
-            await this.$nextTick()
+            await this.$nextTick();
             const infoWindow = new AMap.InfoWindow({
                 content: component.$el, //使用默认信息窗体框样式，显示信息内容
                 anchor,
@@ -779,27 +774,19 @@ export default {
             text-overflow: ellipsis;
             width: 80px;
         }
-        .acheme-animation {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            opacity: 0;
-            border-radius: 50%;
-            background: #1890ff;
-        }
         .acheme-active {
-            animation: mymove 5s infinite;
+            animation: glow 1s ease-out infinite alternate;
         }
-        @keyframes mymove {
-            from {
-                transform: scale(0);
-                opacity: 1;
+
+        @keyframes glow {
+            0% {
+                box-shadow: 0 0 16px rgba(82, 196, 26, 1),
+                    inset 0 0 80px rgba(82, 196, 26, 0.1), 0 0 0 #52c41a;
             }
-            to {
-                transform: scale(1);
-                opacity: 0;
+
+            100% {
+                box-shadow: 0 0 20px rgba(82, 196, 26, 0.1),
+                    inset 0 0 60px rgba(82, 196, 26, 1), 0 0 0 #52c41a;
             }
         }
 
