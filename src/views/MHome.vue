@@ -57,9 +57,6 @@
                 </div>
             </div>
         </a-drawer>
-        <div style="display: none">
-            <build-mark ref="infowindow"></build-mark>
-        </div>
     </div>
 </template>
 
@@ -67,7 +64,6 @@
 import Vue from "vue";
 import AMap from "AMap";
 import { OBJLoader2 } from "three/examples/jsm/loaders/OBJLoader2";
-import BuildMark from "@/components/MBuildMark.vue";
 const HISTORY_SEARCH = "HISTORY_SEARCH";
 import { Icon } from "ant-design-vue";
 const IconFont = Icon.createFromIconfontCN({
@@ -76,7 +72,7 @@ const IconFont = Icon.createFromIconfontCN({
 const up = 315;
 const down = 50;
 export default {
-    components: { BuildMark, IconFont },
+    components: { IconFont },
     data() {
         return {
             historySearch: [], //查询历史

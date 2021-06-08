@@ -371,7 +371,7 @@ export default {
 };
 </script>
 
-<style lang="less" scope>
+<style lang="less" scoped>
 #x6 {
     height: 874px;
     width: 1879px;

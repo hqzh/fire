@@ -1,17 +1,386 @@
 <template>
-  <div @click="handleBack">手机详情</div>
+    <div class="x6-wrap">
+        <!-- 战斗人员   消防栓  消防通道 -->
+        <div id="x6-container"></div>
+        <a-drawer
+            v-zswipedown="touchDown"
+            v-zswipeup="touchUp"
+            :height="height"
+            placement="bottom"
+            :closable="false"
+            :visible="true"
+            :mask="false"
+            :maskClosable="false"
+            wrapClassName="wrap-bottom-drawer"
+        >
+            <div>
+                <div class="menu-wrap" >
+                    <div
+                        class="menu-item"
+                        v-for="item in list"
+                        :key="item.icon"
+                        @click="handleClick(item.icon)"
+                    >
+                        <icon-font :type="item.icon" class="icon-fire" />
+                        <div>{{ item.text }}</div>
+                    </div>
+                </div>
+                <div class="scheme-wrap">
+                    <a-checkbox
+                        @change="onChange('hold', 'red')"
+                        v-model="hold"
+                    >
+                        <a-button
+                            type="link"
+                            @click="
+                                hold = !hold;
+                                onChange('hold', 'red');
+                            "
+                        >
+                            进攻路线方案
+                        </a-button>
+                    </a-checkbox>
+                    <a-checkbox
+                        @change="onChange('water', 'aqua')"
+                        v-model="water"
+                    >
+                        <a-button
+                            type="link"
+                            @click="
+                                water = !water;
+                                onChange('water', 'aqua');
+                            "
+                        >
+                            供水方案
+                        </a-button>
+                    </a-checkbox>
+                </div>
+
+                <div class="handle">
+                    <a-button type="primary" @click="handleSave('close')">
+                        保存
+                    </a-button>
+                    <a-button type="danger" @click="handleClear">
+                        清空
+                    </a-button>
+                    <a-button @click="handleBack"> 返回 </a-button>
+                </div>
+            </div>
+        </a-drawer>
+    </div>
 </template>
 
 <script>
+import { Graph } from "@antv/x6";
+import { Icon, Message } from "ant-design-vue";
+import { initData, hold, water } from "../components/data";
+
+const IconFont = Icon.createFromIconfontCN({
+    scriptUrl: "//at.alicdn.com/t/font_2358004_nxyqshrf4k.js",
+});
+const up = 220;
+const down = 100;
+Graph.registerNode(
+    "fireman",
+    {
+        attrs: {
+            image: {
+                event: "cell:contextmenu",
+                "xlink:href": "/static/fireman.png",
+                width: 64,
+                height: 64,
+            },
+        },
+        markup: [
+            {
+                tagName: "image",
+                selector: "image",
+            },
+        ],
+    },
+    true
+);
+Graph.registerNode(
+    "hydrant",
+    {
+        attrs: {
+            image: {
+                event: "cell:contextmenu",
+                "xlink:href": "/static/hydrant.png",
+                width: 40,
+                height: 60,
+            },
+        },
+        markup: [
+            {
+                tagName: "image",
+                selector: "image",
+            },
+        ],
+    },
+    true
+);
+Graph.registerNode(
+    "fire",
+    {
+        attrs: {
+            image: {
+                event: "cell:contextmenu",
+                "xlink:href": "/static/fire.gif",
+                width: 62,
+                height: 47,
+            },
+        },
+        markup: [
+            {
+                tagName: "image",
+                selector: "image",
+            },
+        ],
+    },
+    true
+);
 export default {
-    methods:{
-        handleBack(){
+    components: {
+        IconFont,
+    },
+    data() {
+        return {
+            height: up,
+            hold: true,
+            water: true,
+            graph: null,
+            list: [
+                {
+                    text: "战斗人员",
+                    icon: "iconfireman",
+                },
+                {
+                    text: "消防栓",
+                    icon: "iconhydrant",
+                },
+                {
+                    text: "安全通道",
+                    icon: "iconexit",
+                },
+                {
+                    text: "着火点",
+                    icon: "iconfire",
+                },
+                {
+                    text: "进攻线路",
+                    icon: "iconplan",
+                },
+                {
+                    text: "供水线路",
+                    icon: "iconflow",
+                },
+            ],
+        };
+    },
+    async mounted() {
+        await this.$nextTick();
+        this.init();
+    },
+    methods: {
+        touchDown() {
+            this.height = down;
+        },
+        touchUp() {
+            this.height = up;
+        },
+        handleBack() {
             this.$router.go(-1)
-        }
-    }
-}
+        },
+        onChange(key, color) {
+            this.handleSave();
+            const serveData = JSON.parse(localStorage.getItem("x6"));
+            if (serveData && serveData.cells.length) {
+                this.graph.fromJSON(serveData);
+            }
+            if (this[key]) {
+                serveData.cells = [
+                    ...serveData.cells,
+                    ...(key === "hold" ? hold : water),
+                ];
+                this.graph.fromJSON(serveData.cells);
+                console.log(serveData);
+            } else {
+                this.graph.fromJSON({
+                    cells: serveData.cells.filter(
+                        (item) => item?.attrs?.line?.stroke !== color
+                    ),
+                });
+            }
+        },
+        handleClear() {
+            this.graph.clearCells();
+            Message.success("清空完成！");
+            // localStorage.clear()
+        },
+        handleSave(close) {
+            localStorage.setItem("x6", JSON.stringify(this.graph.toJSON()));
+            if (close) {
+                Message.success("保存成功！");
+            }
+        },
+        init() {
+            const width = document.getElementById("x6-container").scrollWidth;
+            const height =
+                document.getElementById("x6-container").scrollHeight || 600;
+            this.graph = new Graph({
+                container: document.getElementById("x6-container"),
+                width,
+                height,
+                background: {
+                    image: "/static/cad.jpg",
+                    position: "center", // https://developer.mozilla.org/en-US/docs/Web/CSS/background-position
+                    size: "100% 100%", // https://developer.mozilla.org/en-US/docs/Web/CSS/background-size
+                    repeat: "no-repeat", // https://developer.mozilla.org/en-US/docs/Web/CSS/background-repeat
+                },
+            });
+            this.graph.on("cell:contextmenu", ({ view, e }) => {
+                if (e.type === "contextmenu") {
+                    e.stopPropagation();
+                    view.cell.remove();
+                }
+            });
+            this.graph.on("edge:mouseenter", ({ cell }) => {
+                cell.addTools([
+                    {
+                        name: "target-arrowhead",
+                        args: {
+                            attrs: {
+                                fill: cell.attrs.line.stroke,
+                            },
+                        },
+                    },
+                ]);
+            });
+            const serveData =
+                JSON.parse(localStorage.getItem("x6")) || initData;
+            if (serveData && serveData.cells.length) {
+                this.graph.fromJSON(serveData);
+            }
+        },
+        handleClick(icon) {
+            switch (icon) {
+                case "iconfireman":
+                    this.graph.addNode({
+                        x: 500,
+                        y: 400,
+                        shape: "fireman",
+                    });
+                    break;
+                case "iconhydrant":
+                    this.graph.addNode({
+                        x: 500,
+                        y: 400,
+                        shape: "hydrant",
+                    });
+                    break;
+                case "iconfire":
+                    this.graph.addNode({
+                        x: 500,
+                        y: 400,
+                        shape: "fire",
+                    });
+                    break;
+                case "iconexit":
+                    this.graph.addEdge({
+                        source: { x: 400, y: 400 },
+                        target: { x: 800, y: 500 },
+                        vertices: [
+                            { x: 400, y: 300 },
+                            { x: 500, y: 300 },
+                            { x: 500, y: 500 },
+                        ],
+                        attrs: {
+                            line: {
+                                event: "edge:contextmenu",
+                                stroke: "#009944",
+                                strokeWidth: 6,
+                                targetMarker: "classic",
+                            },
+                        },
+                        tools: {
+                            name: "vertices",
+                            args: {
+                                attrs: { fill: "#f90c2d" },
+                            },
+                        },
+                    });
+                    break;
+                case "iconplan":
+                    this.graph.addEdge({
+                        source: { x: 100, y: 120 },
+                        target: { x: 200, y: 120 },
+                        attrs: {
+                            line: {
+                                stroke: "red",
+                            },
+                        },
+                    });
+                    break;
+                case "iconflow":
+                    this.graph.addEdge({
+                        source: { x: 100, y: 240 },
+                        target: { x: 200, y: 240 },
+                        attrs: {
+                            line: {
+                                stroke: "aqua",
+                            },
+                        },
+                    });
+                    break;
+                default:
+                    break;
+            }
+        },
+    },
+};
 </script>
 
-<style>
-
+<style lang="less" scoped>
+.x6-wrap {
+    height: 100%;
+    width: 100%;
+    overflow: auto;
+}
+.scheme-wrap {
+    padding-top: 5px;
+    display: flex;
+    justify-content: space-around;
+}
+.handle {
+    padding-top: 24px;
+    display: flex;
+    justify-content: space-around;
+}
+#x6-container {
+    height: 874px;
+    width: 1639px;
+}
+.icon-fire {
+    font-size: 40px;
+}
+.menu-wrap {
+    width: 100%;
+    overflow-x: auto;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+    &::-webkit-scrollbar {
+        display: none;
+    }
+}
+.menu-item {
+    text-align: center;
+    padding: 16px 0; 
+    width: 88px;
+    font-weight: bold;
+    display: inline-block;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+}
 </style>

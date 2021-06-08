@@ -11,7 +11,6 @@
 <script>
 export default {
     mounted() {
-        console.log(this.$route);
         if (this.$route.path === '/m-about') {
             return;
         }
