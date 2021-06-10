@@ -3,8 +3,6 @@
         <!-- 战斗人员   消防栓  消防通道 -->
         <div id="x6-container"></div>
         <a-drawer
-            v-zswipedown="touchDown"
-            v-zswipeup="touchUp"
             :height="height"
             placement="bottom"
             :closable="false"
@@ -13,58 +11,63 @@
             :maskClosable="false"
             wrapClassName="wrap-bottom-drawer"
         >
-            <div>
-                <div class="menu-wrap" >
-                    <div
-                        class="menu-item"
-                        v-for="item in list"
-                        :key="item.icon"
-                        @click="handleClick(item.icon)"
-                    >
-                        <icon-font :type="item.icon" class="icon-fire" />
-                        <div>{{ item.text }}</div>
-                    </div>
+            <icon
+                type="up"
+                class="about-icon"
+                v-if="height === 140"
+                @click="height = 320"
+            />
+            <icon
+                type="down"
+                class="about-icon"
+                v-if="height === 320"
+                @click="height = 140"
+            />
+            <a-divider orientation="left">要素</a-divider>
+            <div class="menu-wrap">
+                <div
+                    class="menu-item"
+                    v-for="item in list"
+                    :key="item.icon"
+                    :id="item.icon"
+                     @click="handleClick(item.icon)"
+                >
+                    <icon-font :type="item.icon" class="icon-fire" />
+                    <div>{{ item.text }}</div>
                 </div>
-                <div class="scheme-wrap">
-                    <a-checkbox
-                        @change="onChange('hold', 'red')"
-                        v-model="hold"
+            </div>
+            <a-divider orientation="left">方案</a-divider>
+            <div class="scheme-wrap">
+                <a-checkbox @change="onChange('hold', 'red')" v-model="hold">
+                    <a-button
+                        type="link"
+                        @click="
+                            hold = !hold;
+                            onChange('hold', 'red');
+                        "
                     >
-                        <a-button
-                            type="link"
-                            @click="
-                                hold = !hold;
-                                onChange('hold', 'red');
-                            "
-                        >
-                            进攻路线方案
-                        </a-button>
-                    </a-checkbox>
-                    <a-checkbox
-                        @change="onChange('water', 'aqua')"
-                        v-model="water"
-                    >
-                        <a-button
-                            type="link"
-                            @click="
-                                water = !water;
-                                onChange('water', 'aqua');
-                            "
-                        >
-                            供水方案
-                        </a-button>
-                    </a-checkbox>
-                </div>
-
-                <div class="handle">
-                    <a-button type="primary" @click="handleSave('close')">
-                        保存
+                        进攻路线方案
                     </a-button>
-                    <a-button type="danger" @click="handleClear">
-                        清空
+                </a-checkbox>
+                <a-checkbox @change="onChange('water', 'aqua')" v-model="water">
+                    <a-button
+                        type="link"
+                        @click="
+                            water = !water;
+                            onChange('water', 'aqua');
+                        "
+                    >
+                        供水方案
                     </a-button>
-                    <a-button @click="handleBack"> 返回 </a-button>
-                </div>
+                </a-checkbox>
+            </div>
+            <a-divider orientation="left">操作</a-divider>
+            <div class="handle">
+                <a-button type="primary" @click="handleSave('close')">
+                    保存
+                </a-button>
+                <a-button type="danger" @click="handleClear"> 清空 </a-button>
+                <a-button @click="handleBack"> 返回 </a-button>
             </div>
         </a-drawer>
     </div>
@@ -78,8 +81,8 @@ import { initData, hold, water } from "../components/data";
 const IconFont = Icon.createFromIconfontCN({
     scriptUrl: "//at.alicdn.com/t/font_2358004_nxyqshrf4k.js",
 });
-const up = 220;
-const down = 100;
+const up = 320;
+// const down = 140;
 Graph.registerNode(
     "fireman",
     {
@@ -143,6 +146,7 @@ Graph.registerNode(
 export default {
     components: {
         IconFont,
+        Icon,
     },
     data() {
         return {
@@ -183,14 +187,8 @@ export default {
         this.init();
     },
     methods: {
-        touchDown() {
-            this.height = down;
-        },
-        touchUp() {
-            this.height = up;
-        },
         handleBack() {
-            this.$router.go(-1)
+            this.$router.go(-1);
         },
         onChange(key, color) {
             this.handleSave();
@@ -227,7 +225,7 @@ export default {
         init() {
             const width = document.getElementById("x6-container").scrollWidth;
             const height =
-                document.getElementById("x6-container").scrollHeight || 600;
+                document.getElementById("x6-container").scrollHeight || 874;
             this.graph = new Graph({
                 container: document.getElementById("x6-container"),
                 width,
@@ -342,24 +340,31 @@ export default {
 </script>
 
 <style lang="less" scoped>
+.about-icon {
+    position: absolute;
+    top: 2px;
+    font-weight: bold;
+    font-size: 24px;
+    left: 50%;
+    transform: translate(-50%);
+}
 .x6-wrap {
     height: 100%;
     width: 100%;
     overflow: auto;
 }
 .scheme-wrap {
-    padding-top: 5px;
     display: flex;
     justify-content: space-around;
 }
 .handle {
-    padding-top: 24px;
     display: flex;
     justify-content: space-around;
 }
 #x6-container {
     height: 874px;
     width: 1639px;
+    margin-bottom: 150px;
 }
 .icon-fire {
     font-size: 40px;
@@ -375,7 +380,6 @@ export default {
 }
 .menu-item {
     text-align: center;
-    padding: 16px 0; 
     width: 88px;
     font-weight: bold;
     display: inline-block;

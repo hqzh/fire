@@ -801,18 +801,6 @@ export default {
         padding: 10px;
         position: relative;
     }
-    .ant-drawer-body::before {
-        position: absolute;
-        display: block;
-        content: "";
-        width: 24px;
-        height: 4px;
-        background: #666;
-        top: 2px;
-        left: 50%;
-        transform: translate(-50%);
-        border-radius: 4px;
-    }
 }
 </style>
 <style lang="less" scoped>
@@ -825,5 +813,17 @@ export default {
     #map {
         .wh;
     }
+}
+.wrap-bottom-drawer /deep/ .ant-drawer-body::before {
+    position: absolute;
+    display: block;
+    content: "";
+    width: 24px;
+    height: 4px;
+    background: #666;
+    top: 2px;
+    left: 50%;
+    transform: translate(-50%);
+    border-radius: 4px;
 }
 </style>
