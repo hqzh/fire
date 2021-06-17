@@ -677,7 +677,7 @@ export default {
                 this.setControl();
                 this.setBuildStyle();
                 this[this.scheme](this.scheme);
-                this.visible = false;
+                // this.visible = false;
             });
         },
         async searchAddress() {
