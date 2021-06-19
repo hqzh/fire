@@ -1,5 +1,5 @@
 <template>
-    <div class="x6-wrap">
+    <div class="x6-wrap" id="x6-wrap">
         <!-- 战斗人员   消防栓  消防通道 -->
         <div id="x6-container"></div>
         <a-drawer
@@ -30,7 +30,9 @@
                     v-for="item in list"
                     :key="item.icon"
                     :id="item.icon"
-                     @click="handleClick(item.icon)"
+                    @touchstart="start"
+                    @touchmove="move"
+                    @touchend="end($event, item.icon)"
                 >
                     <icon-font :type="item.icon" class="icon-fire" />
                     <div>{{ item.text }}</div>
@@ -187,6 +189,88 @@ export default {
         this.init();
     },
     methods: {
+        start() {},
+        move() {},
+        end(e, icon) {
+            const x =
+                e.changedTouches[0].pageX +
+                document.getElementById("x6-wrap").scrollLeft;
+            const y =
+                e.changedTouches[0].pageY +
+                document.getElementById("x6-wrap").scrollTop;
+            switch (icon) {
+                case "iconfireman":
+                    this.graph.addNode({
+                        x,
+                        y,
+                        shape: "fireman",
+                    });
+                    break;
+                case "iconhydrant":
+                    this.graph.addNode({
+                        x,
+                        y,
+                        shape: "hydrant",
+                    });
+                    break;
+                case "iconfire":
+                    this.graph.addNode({
+                        x,
+                        y,
+                        shape: "fire",
+                    });
+                    break;
+                case "iconexit":
+                    this.graph.addEdge({
+                        source: { x, y },
+                        target: { x: x + 400, y: y + 100 },
+                        vertices: [
+                            { x, y: y - 100 },
+                            { x: x + 100, y: y - 100 },
+                            { x: x + 100, y: y + 100 },
+                        ],
+                        attrs: {
+                            line: {
+                                event: "edge:contextmenu",
+                                stroke: "#009944",
+                                strokeWidth: 6,
+                                targetMarker: "classic",
+                            },
+                        },
+                        tools: {
+                            name: "vertices",
+                            args: {
+                                attrs: { fill: "#f90c2d" },
+                            },
+                        },
+                    });
+                    break;
+                case "iconplan":
+                    this.graph.addEdge({
+                        source: { x, y },
+                        target: { x: x + 100, y },
+                        attrs: {
+                            line: {
+                                stroke: "red",
+                            },
+                        },
+                    });
+                    break;
+                case "iconflow":
+                    this.graph.addEdge({
+                        source: { x, y },
+                        target: { x: x + 100, y },
+                        attrs: {
+                            line: {
+                                stroke: "aqua",
+                            },
+                        },
+                    });
+                    break;
+                default:
+                    break;
+            }
+        },
         handleBack() {
             this.$router.go(-1);
         },
@@ -238,6 +322,7 @@ export default {
                 },
             });
             this.graph.on("cell:contextmenu", ({ view, e }) => {
+                // 移动端长按删除
                 if (e.type === "contextmenu") {
                     e.stopPropagation();
                     view.cell.remove();
@@ -259,80 +344,6 @@ export default {
                 JSON.parse(localStorage.getItem("x6")) || initData;
             if (serveData && serveData.cells.length) {
                 this.graph.fromJSON(serveData);
-            }
-        },
-        handleClick(icon) {
-            switch (icon) {
-                case "iconfireman":
-                    this.graph.addNode({
-                        x: 500,
-                        y: 400,
-                        shape: "fireman",
-                    });
-                    break;
-                case "iconhydrant":
-                    this.graph.addNode({
-                        x: 500,
-                        y: 400,
-                        shape: "hydrant",
-                    });
-                    break;
-                case "iconfire":
-                    this.graph.addNode({
-                        x: 500,
-                        y: 400,
-                        shape: "fire",
-                    });
-                    break;
-                case "iconexit":
-                    this.graph.addEdge({
-                        source: { x: 400, y: 400 },
-                        target: { x: 800, y: 500 },
-                        vertices: [
-                            { x: 400, y: 300 },
-                            { x: 500, y: 300 },
-                            { x: 500, y: 500 },
-                        ],
-                        attrs: {
-                            line: {
-                                event: "edge:contextmenu",
-                                stroke: "#009944",
-                                strokeWidth: 6,
-                                targetMarker: "classic",
-                            },
-                        },
-                        tools: {
-                            name: "vertices",
-                            args: {
-                                attrs: { fill: "#f90c2d" },
-                            },
-                        },
-                    });
-                    break;
-                case "iconplan":
-                    this.graph.addEdge({
-                        source: { x: 100, y: 120 },
-                        target: { x: 200, y: 120 },
-                        attrs: {
-                            line: {
-                                stroke: "red",
-                            },
-                        },
-                    });
-                    break;
-                case "iconflow":
-                    this.graph.addEdge({
-                        source: { x: 100, y: 240 },
-                        target: { x: 200, y: 240 },
-                        attrs: {
-                            line: {
-                                stroke: "aqua",
-                            },
-                        },
-                    });
-                    break;
-                default:
-                    break;
             }
         },
     },
